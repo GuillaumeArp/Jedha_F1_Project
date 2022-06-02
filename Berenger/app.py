@@ -17,3 +17,27 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
+
+
+### Config
+st.set_page_config(
+    page_title="FastF1",
+    page_icon=":red_car:",
+    layout="wide"
+)
+
+year = 2022
+gp_round = 7
+ses = 'FP3'
+driver_1 = 'LEC'
+driver_2 = 'GAS'
+
+# events_list = ff1.get_event_schedule(2022)[2:]
+
+# session = ff1.get_session(year, gp_round, ses)
+# session.load(weather=True, telemetry=True)
+
+
+session = ff1.get_session(2022, 4 , 'R')
+session.load()
+session.laps

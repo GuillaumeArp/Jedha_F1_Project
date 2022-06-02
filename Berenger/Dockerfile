@@ -7,7 +7,7 @@ RUN apt-get install nano unzip
 RUN apt install curl -y
 
 
-RUN pip install pandas streamlit sklearn plotly numpy openpyxl
+RUN pip install pandas streamlit plotly numpy fastf1 matplotlib
 COPY . /home/app
 
 CMD streamlit run --server.port $PORT app.py
