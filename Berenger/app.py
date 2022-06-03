@@ -81,80 +81,17 @@ for i in range(1, LapNumber):
 new_df
 
 my_raceplot = barplot(new_df,  item_column='Driver', value_column='Time_Diff', time_column='LapNumber')
-my_raceplot.plot(item_label = 'Drivers', value_label = 'pop', frame_duration = 600)
+fig = my_raceplot.plot(item_label = 'Drivers', value_label = 'pop', frame_duration = 600)
+
+st.plotly_chart(fig, use_container_width=True)
 
 
 
-st.write('---')
-st.markdown('<p class="font">Set Parameters...</p>', unsafe_allow_html=True)
-column_list=list(df)
-column_list = deque(column_list)
-column_list.appendleft('-')
-with st.form(key='columns_in_form'):
-    text_style = '<p style="font-family:sans-serif; color:red; font-size: 15px;">***These input fields are required***</p>'
-    st.markdown(text_style, unsafe_allow_html=True)
-    col1, col2, col3 = st.columns( [1, 1, 1])
-    with col1:
-        item_column=st.selectbox('Bar column:',column_list, index=0, help='Choose the column in your data that represents the bars, e.g., countries, teams, etc.') 
-    with col2:    
-        value_column=st.selectbox('Metric column:',column_list, index=0, help='Choose the column in your data that represents the value/metric of each bar, e.g., population, gdp, etc.') 
-    with col3:    
-        time_column=st.selectbox('Time column:',column_list, index=0, help='Choose the column in your data that represents the time series, e.g., year, month, etc.')   
 
-    text_style = '<p style="font-family:sans-serif; color:blue; font-size: 15px;">***Customize and fine-tune your plot (optional)***</p>'
-    st.markdown(text_style, unsafe_allow_html=True)
-    col4, col5, col6 = st.columns( [1, 1, 1])
-    with col4:
-        direction=st.selectbox('Choose plot orientation:',['-','Horizontal','Vertical'], index=0, help='Specify whether you want the bar chart race to be plotted horizontally or vertically. The default is horizontal' ) 
-        if direction=='Horizontal'or direction=='-':
-            orientation='horizontal'
-        elif  direction=='Vertical':   
-            orientation='vertical'
-    with col5:
-        item_label=st.text_input('Add a label for bar column:', help='For example: Top 10 countries in the world by 2020 GDP')  
-    with col6:
-        value_label=st.text_input('add a label for metric column', help='For example: GDP from 1965 - 2020') 
+data = pd.read_csv('https://raw.githubusercontent.com/lc5415/raceplotly/main/example/FAOSTAT_data.csv')
 
-    col7, col8, col9 = st.columns( [1, 1, 1])
-    with col7:
-        num_items=st.number_input('Choose how many bars to show:', min_value=5, max_value=50, value=10, step=1,help='Enter a number to choose how many bars ranked by the metric column. The default is top 10 items.')
-    with col8:
-        format=st.selectbox('Show by Year or Month:',['-','By Year','By Month'], index=0, help='Choose to show the time series by year or month')
-        if format=='By Year' or format=='-':
-            date_format='%Y'
-        elif format=='By Month':
-            date_format='%x'   
-    with col9:
-        chart_title=st.text_input('Add a chart title', help='Add a chart title to your plot')    
-    
-    col10, col11, col12 = st.columns( [1, 1, 1])
-    with col10:
-        speed=st.slider('Animation Speed',10,500,100, step=10, help='Adjust the speed of animation')
-        frame_duration=500-speed  
-    with col11:
-        chart_width=st.slider('Chart Width',500,1000,500, step=20, help='Adjust the width of the chart')
-    with col12:    
-        chart_height=st.slider('Chart Height',500,1000,600, step=20, help='Adjust the height of the chart')
+my_raceplot = barplot(data,  item_column='Item', value_column='Value', time_column='Year')
 
-    submitted = st.form_submit_button('Submit')
+fig = my_raceplot.plot(item_label = 'Top 10 crops', value_label = 'Production quantity (tonnes)', frame_duration = 800)
 
-
-st.write('---')
-if submitted:        
-    if item_column=='-'or value_column=='-'or time_column=='-':
-        st.warning("You must complete the required fields")
-    else: 
-        st.markdown('<p class="font">Generating your bar chart race plot... And Done!</p>', unsafe_allow_html=True)   
-        df['time_column'] = pd.to_datetime(df[time_column])
-        df['value_column'] = df[value_column].astype(float)
-
-        raceplot = barplot(df,  item_column=item_column, value_column=value_column, time_column=time_column,top_entries=num_items)
-        fig=raceplot.plot(item_label = item_label, value_label = value_label, frame_duration = frame_duration, date_format=date_format,orientation=orientation)
-        fig.update_layout(
-        title=chart_title,
-        autosize=False,
-        width=chart_width,
-        height=chart_height,
-        paper_bgcolor="lightgray",
-        )
-        st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
