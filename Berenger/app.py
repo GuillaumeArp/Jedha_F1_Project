@@ -24,6 +24,8 @@ from st_aggrid import AgGrid
 from raceplotly.plots import barplot
 from collections import deque
 
+import bar_chart_race as bcr
+
 
 ### Config
 st.set_page_config(
@@ -95,3 +97,12 @@ my_raceplot = barplot(data,  item_column='Item', value_column='Value', time_colu
 fig = my_raceplot.plot(item_label = 'Top 10 crops', value_label = 'Production quantity (tonnes)', frame_duration = 800)
 
 st.plotly_chart(fig, use_container_width=True)
+
+
+new_df2 = new_df.pivot_table(values='Time_Diff', index=df.LapNumber, columns=df.Driver)
+new_df2.head()
+
+fig = bcr.bar_chart_race(new_df2)
+
+st.pyplot(fig)
+
