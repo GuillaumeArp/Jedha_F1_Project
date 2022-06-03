@@ -52,25 +52,36 @@ df = session.laps
 
 df = df[["Time", "LapNumber", "Driver"]]
 
-df["Time2"] = df.Time.astype(str)
-
 import re
-#extract all numbers from Time2 column
-def getNumbers(str):
-    array = re.findall(r'[0-9]+', str)
+#Convert Time to seconds
+def time_to_seconds(string):
+    array = re.findall(r'[0-9]+', str(string))
+    array = array[1:]
+    array[0] = int(array[0]) * 3600
+    array[1] = int(array[1]) * 60
+    array = float(str(array[0] + array[1] + int(array[2])) + "." + array[3])
+    
     return array
 
-df["Time3"] = df["Time2"].apply(getNumbers)
+df["Time"] = df["Time"].apply(time_to_seconds)
 
-df["Time3"] = df["Time3"].apply(lambda x: x[1:]).str.join("")
-df.head()
+df["LapNumber"] = df["LapNumber"].astype(int)
+LapNumber = max(df["LapNumber"])
 
+df = df[df["LapNumber"] != 0]
 
+new_df = pd.DataFrame()
+for i in range(1, LapNumber):
+    df_i = df[df["LapNumber"] == i]
+    minimum = min(df_i["Time"])
+    df_i["Time_Diff"] = df_i["Time"] - minimum
+    #concatenate new dataframe
+    new_df = pd.concat([new_df, df_i])
 
+new_df
 
-raceplot = barplot(df,  item_column='Driver', value_column='LapNumber', time_column='Time')
-
-raceplot.plot(item_label = 'Top 10 Countries', value_label = 'GDP ($)', frame_duration = 800)
+my_raceplot = barplot(new_df,  item_column='Driver', value_column='Time_Diff', time_column='LapNumber')
+my_raceplot.plot(item_label = 'Drivers', value_label = 'pop', frame_duration = 600)
 
 
 
