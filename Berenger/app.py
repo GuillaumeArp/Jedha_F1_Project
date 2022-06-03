@@ -50,6 +50,23 @@ session.laps
 
 df = session.laps
 
+df = df[["Time", "LapNumber", "Driver"]]
+
+df["Time2"] = df.Time.astype(str)
+
+import re
+#extract all numbers from Time2 column
+def getNumbers(str):
+    array = re.findall(r'[0-9]+', str)
+    return array
+
+df["Time3"] = df["Time2"].apply(getNumbers)
+
+df["Time3"] = df["Time3"].apply(lambda x: x[1:]).str.join("")
+df.head()
+
+
+
 
 raceplot = barplot(df,  item_column='Driver', value_column='LapNumber', time_column='Time')
 
