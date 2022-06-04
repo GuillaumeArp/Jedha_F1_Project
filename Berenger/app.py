@@ -90,11 +90,10 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
+
 db = pd.read_csv('https://raw.githubusercontent.com/pythoninoffice/pythonio_examples/main/matplotlib_bar_chart_race/dragon_ball_pl.csv')
 
 db.head()
-
-
 
 one_row = db.iloc[0]
 one_row_ascending = one_row.sort_values()
@@ -121,32 +120,73 @@ for i, ax in enumerate(axs):
     ax.set_title(f'{i}-th row', fontsize='larger')
     [spine.set_visible(False) for spine in ax.spines.values()]  # remove chart outlines
 
+from matplotlib.animation import FuncAnimation
 
-    from matplotlib.animation import FuncAnimation
+db.index = range(0,21*10,10)
+print(list(db.index))
+[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
+
+row_nums = [i for i in range(0,210) if i % 10 != 0 ]
+empty = pd.DataFrame(np.nan, index= row_nums, columns = db.columns)
+
+expand_df = pd.concat([db, empty]).sort_index()
+
+rank_df = expand_df.rank(axis=1)
+
+expand_df = expand_df.interpolate()
+rank_df = rank_df.interpolate()
+
+num = 3
+fig, axs = plt.subplots(nrows = 1, ncols = num, figsize = (10, 5), tight_layout = True)
+for i, ax in enumerate(axs):
+    ax.barh(y=rank_df.iloc[i].values,
+            tick_label = expand_df.iloc[i].index,
+            width = expand_df.iloc[i].values,
+            color = plt.cm.Set1(range(6)))
+    ax.set_title(f'{i}-th row', fontsize='larger')
+    [spine.set_visible(False) for spine in ax.spines.values()]  # remove chart outlines
+
 
 def update(i):
     ax.clear()
-    ax.set_facecolor(plt.cm.Greys(0.2))
+    ax.set_facecolor(plt.cm.Dark2(0.9))
     [spine.set_visible(False) for spine in ax.spines.values()]
-    hbars = ax.barh(y = db.iloc[i].rank().values,
-           tick_label=db.iloc[i].index,
-           width = db.iloc[i].values,
+    hbars = ax.barh(y = rank_df.iloc[i].values,
+           tick_label=expand_df.iloc[i].index,
+           width = expand_df.iloc[i].values,
            height = 0.8,
-           color = plt.cm.Set1(range(11))
+           color = plt.cm.Dark2(range(11))
            )
     ax.set_title(f'Frame: {i}')
-    #ax.bar_label(hbars, fmt='%.2d')
+    ax.bar_label(hbars, fmt='%.2d')
     
 
 fig,ax = plt.subplots(#figsize=(10,7),
-                      facecolor = plt.cm.Greys(0.2),
+                      facecolor = plt.cm.Dark2(0.9),
                       dpi = 150,
                       tight_layout=True
                      )
 
+
 data_anime = FuncAnimation(
     fig = fig,
     func = update,
-    frames= len(db),
-    interval=300
+    frames= len(expand_df),
+    interval=100
+)
+
+data_anime.save("test.gif")
+
+
+import base64
+
+"""### gif from local file"""
+file_ = open("test.gif", "rb")
+contents = file_.read()
+data_url = base64.b64encode(contents).decode("utf-8")
+file_.close()
+
+st.markdown(
+    f'<img src="data:image/gif;base64,{data_url}" alt="cat gif">',
+    unsafe_allow_html=True,
 )
