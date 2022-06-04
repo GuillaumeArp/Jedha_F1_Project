@@ -80,7 +80,7 @@ for i in range(1, LapNumber):
     #concatenate new dataframe
     new_df = pd.concat([new_df, df_i])
 
-new_df
+
 
 my_raceplot = barplot(new_df,  item_column='Driver', value_column='Time_Diff', time_column='LapNumber')
 fig = my_raceplot.plot(item_label = 'Drivers', value_label = 'pop', frame_duration = 600)
@@ -90,19 +90,63 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-data = pd.read_csv('https://raw.githubusercontent.com/lc5415/raceplotly/main/example/FAOSTAT_data.csv')
+db = pd.read_csv('https://raw.githubusercontent.com/pythoninoffice/pythonio_examples/main/matplotlib_bar_chart_race/dragon_ball_pl.csv')
 
-my_raceplot = barplot(data,  item_column='Item', value_column='Value', time_column='Year')
-
-fig = my_raceplot.plot(item_label = 'Top 10 crops', value_label = 'Production quantity (tonnes)', frame_duration = 800)
-
-st.plotly_chart(fig, use_container_width=True)
+db.head()
 
 
-new_df2 = new_df.pivot_table(values='Time_Diff', index=df.LapNumber, columns=df.Driver)
-new_df2.head()
 
-fig = bcr.bar_chart_race(new_df2)
+one_row = db.iloc[0]
+one_row_ascending = one_row.sort_values()
+characters = db.columns
 
-st.pyplot(fig)
+fix, ax = plt.subplots(figsize=(10,10))
+ax.barh(y = range(len(characters)), 
+        tick_label = one_row_ascending.index,
+        width = one_row_ascending.values, 
+        align='center',
+        color = plt.cm.Set1(range(len(characters))))
 
+
+db.head(3)
+
+
+num = 3
+fig, axs = plt.subplots(nrows = 1, ncols = num, figsize = (10, 5), tight_layout = True)
+for i, ax in enumerate(axs):
+    ax.barh(y=db.iloc[i].rank(),
+            tick_label = db.iloc[i].index,
+            width = db.iloc[i].values,
+            color = plt.cm.Set1(range(6)))
+    ax.set_title(f'{i}-th row', fontsize='larger')
+    [spine.set_visible(False) for spine in ax.spines.values()]  # remove chart outlines
+
+
+    from matplotlib.animation import FuncAnimation
+
+def update(i):
+    ax.clear()
+    ax.set_facecolor(plt.cm.Greys(0.2))
+    [spine.set_visible(False) for spine in ax.spines.values()]
+    hbars = ax.barh(y = db.iloc[i].rank().values,
+           tick_label=db.iloc[i].index,
+           width = db.iloc[i].values,
+           height = 0.8,
+           color = plt.cm.Set1(range(11))
+           )
+    ax.set_title(f'Frame: {i}')
+    #ax.bar_label(hbars, fmt='%.2d')
+    
+
+fig,ax = plt.subplots(#figsize=(10,7),
+                      facecolor = plt.cm.Greys(0.2),
+                      dpi = 150,
+                      tight_layout=True
+                     )
+
+data_anime = FuncAnimation(
+    fig = fig,
+    func = update,
+    frames= len(db),
+    interval=300
+)
