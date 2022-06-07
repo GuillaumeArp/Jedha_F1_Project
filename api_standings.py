@@ -41,8 +41,10 @@ def update_driver_standings(rounds):
     df_drivers.sort_values(by=df_drivers.columns[-1], ascending=False, inplace=True)
     return df_drivers
 
+print('Getting drivers standings...')
 df_drivers = update_driver_standings(22)
 df_drivers.to_csv('data/drivers_standings.csv')
+print('Done!')
 
 # Get constructors standings
 def update_constructor_standings(rounds):
@@ -65,5 +67,7 @@ def update_constructor_standings(rounds):
     df_constructors.sort_values(by=df_constructors.columns[-1], ascending=False, inplace=True)
     return df_constructors
 
+print('Getting constructors standings...')
 df_constructors = update_constructor_standings(22)
 df_constructors.to_csv('data/constructors_standings.csv')
+print('Done!')
