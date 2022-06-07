@@ -54,9 +54,11 @@ col1, col2, col3 = st.columns([2, 4, 4])
 
 with col1:
 
-    gp_round = st.selectbox(
+    gp_name = st.selectbox(
         'Select an event',
         (events_list["EventName"]))
+
+gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
 if gp_round is not None:
 
@@ -80,55 +82,108 @@ if gp_round is not None:
 # Best lap comparison - Adrien - Start
 # Best lap comparison - Adrien - Start
 
+    # """
+    # Best lap comparison
+    # """
+
+    # drivers = pd.unique(session.laps['Driver'])
+    # list_fastest_laps = list()
+    # for drv in drivers:
+    #     drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
+    #     list_fastest_laps.append(drvs_fastest_lap)
+    #     fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
+
+    # pole_lap = fastest_laps.pick_fastest()
+    # fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
+
+    # team_colors = list()
+    # for index, lap in fastest_laps.iterlaps():
+    #     color = ff1.plotting.team_color(lap['Team'])
+    #     team_colors.append(color)
+
+    # lap_time_string = strftimedelta(pole_lap['LapTime'], '%m:%s.%ms')
+
+    # def fastest_lap_comparison(fastest_laps):
+
+    #     fig, ax = plt.subplots(figsize=(15, 10))
+
+    #     plt.style.use('dark_background')
+
+    #     ax.barh(fastest_laps.index, fastest_laps['LapTimeDelta'], color=team_colors, edgecolor='grey')
+    #     ax.set_yticks(fastest_laps.index)
+    #     ax.set_yticklabels(fastest_laps['Driver'])
+
+    #     plt.suptitle(f"{session.event['EventName']} {session.event.year} Qualifying\n"
+    #             f"Fastest Lap: {lap_time_string} ({pole_lap['Driver']})")
+
+    #     ax.invert_yaxis()
+
+    #     ax.set_axisbelow(True)
+    #     ax.xaxis.grid(True, which='major', linestyle='--', color='grey', zorder=-5000)
+
+    #     return fig
+
+
+
+    # fastest_lap_comparison(fastest_laps)
+
+# Best lap comparison - Adrien - End
+# Best lap comparison - Adrien - End
+# Best lap comparison - Adrien - End
+
+# Gap comparison - Christophe - Start
+# Gap comparison - Christophe - Start
+# Gap comparison - Christophe - Start
+
     """
-    Best lap comparison
+    Gap Christophe
     """
 
-    drivers = pd.unique(session.laps['Driver'])
-    list_fastest_laps = list()
-    for drv in drivers:
-        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
-        list_fastest_laps.append(drvs_fastest_lap)
-        fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
+    #Chargement du calendrier
 
-    pole_lap = fastest_laps.pick_fastest()
-    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
+    #Numéro de la course
+    #round_number = input("Quel est le numéro de la course ?")
 
-    team_colors = list()
-    for index, lap in fastest_laps.iterlaps():
-        color = ff1.plotting.team_color(lap['Team'])
-        team_colors.append(color)
+    #Recherche le nom du GP
 
-    lap_time_string = strftimedelta(pole_lap['LapTime'], '%m:%s.%ms')
+    event_name = events_list[events_list['RoundNumber'] == gp_round].iloc[0,3]
 
-    def fastest_lap_comparison(fastest_laps):
 
-        fig, ax = plt.subplots(figsize=(15, 10))
 
-        plt.style.use('dark_background')
+    #Chargement des données pour une course
 
-        ax.barh(fastest_laps.index, fastest_laps['LapTimeDelta'], color=team_colors, edgecolor='grey')
-        ax.set_yticks(fastest_laps.index)
-        ax.set_yticklabels(fastest_laps['Driver'])
+    #Calcul le gain de position entre la grille de départ et l'arrivée
+    df = session.results
+    df['Nombre de places gagnées'] = df['GridPosition'] - df['Position']
 
-        plt.suptitle(f"{session.event['EventName']} {session.event.year} Qualifying\n"
-                f"Fastest Lap: {lap_time_string} ({pole_lap['Driver']})")
 
-        ax.invert_yaxis()
+    #Affichage du graphique
+    def dif_start_end(df):
+        hovertemplate_gap = 'Finishing place : %{text}'+'<br>Difference from Grid : %{x:.0f} position(s)'
+        df = df.sort_values(by = 'Position', ascending = False)
 
-        ax.set_axisbelow(True)
-        ax.xaxis.grid(True, which='major', linestyle='--', color='grey', zorder=-5000)
+        fig = go.Figure(
+            data = go.Bar(
+                x = df['Nombre de places gagnées']+0.1, 
+                y = df['FullName'],
+                text = df['Position'], marker_color="#" + df['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
+                name = "", 
+                orientation = 'h'),    
+            layout = go.Layout(
+                title = go.layout.Title(text = (event_name + "<br>Position at finish and gap from grid position"), x = 0.5), width = 800, height = 600, template = 'plotly_dark'
+            )
+        )
+                
+        fig.update_layout(hovermode='y unified')
 
         return fig
 
+        
+    st.plotly_chart(dif_start_end(df))
 
-
-    fastest_lap_comparison(fastest_laps)
-
-# Best lap comparison - Adrien - End
-# Best lap comparison - Adrien - End
-# Best lap comparison - Adrien - End
-
+# Gap comparison - Christophe - End
+# Gap comparison - Christophe - End
+# Gap comparison - Christophe - End
 
 
     col1, col2 = st.columns([2, 2])
