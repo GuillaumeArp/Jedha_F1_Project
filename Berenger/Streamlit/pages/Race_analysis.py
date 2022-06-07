@@ -1,6 +1,7 @@
 import fastf1 as ff1
 from fastf1 import plotting
 from fastf1 import utils
+
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
@@ -19,6 +20,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
 
+### Import Adrien ###
+from fastf1.core import Laps
+from timple.timedelta import strftimedelta
+ff1.plotting.setup_mpl(mpl_timedelta_support=True, color_scheme=None, misc_mpl_mods=False)
+### Import Adrien ###
 
 
 ### Config
@@ -31,6 +37,11 @@ st.set_page_config(
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+events_list = ff1.get_event_schedule(2022)[2:]
+
+year = 2022
+ses = 'R'
+
 
 
 st.markdown("<h1 style='text-align: center;'>Race Analysis</h1>", unsafe_allow_html=True)
@@ -39,77 +50,137 @@ st.write('\n')
 st.write('\n')
 
 
-col1, col2, col3 = st.columns([2, 3, 2])
+col1, col2, col3 = st.columns([2, 4, 4])
 
 with col1:
-    st.selectbox(
-        'Select a racetrack',
-        ('Track 1', 'Track 2', 'Track 3'))
+
+    gp_round = st.selectbox(
+        'Select an event',
+        (events_list["EventName"]))
+
+if gp_round is not None:
+
+    session = ff1.get_session(year, gp_round, ses)
+    session.load(weather=True, telemetry=True)
 
 
-st.write('\n')
-st.write('\n')
-st.write('\n')
+    st.write('\n')
+    st.write('\n')
+    st.write('\n')
 
-"""
-Race ranking
+    """
+    Race ranking
 
-Starting Grid
+    Starting Grid
 
-Race chart ?
+    Race chart ?
+    """
 
-Best lap comparison
-"""
-col1, col2 = st.columns([2, 2])
+# Best lap comparison - Adrien - Start
+# Best lap comparison - Adrien - Start
+# Best lap comparison - Adrien - Start
 
-with col1:
-    genre = st.radio("",
-     ('Trial', 'Qualification', 'Sprint', 'Race'))
+    """
+    Best lap comparison
+    """
 
-with col2:
-    if genre == 'Trial':
-        st.write('You selected Trial.')
+    drivers = pd.unique(session.laps['Driver'])
+    list_fastest_laps = list()
+    for drv in drivers:
+        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
+        list_fastest_laps.append(drvs_fastest_lap)
+        fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
 
-    elif genre == 'Qualification':
-        st.write('You selected Qualification.')
+    pole_lap = fastest_laps.pick_fastest()
+    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
 
-    elif genre == 'Sprint':
-        st.write('You selected Sprint.')
+    team_colors = list()
+    for index, lap in fastest_laps.iterlaps():
+        color = ff1.plotting.team_color(lap['Team'])
+        team_colors.append(color)
 
-    else:
-        st.write("You didn't select Race.")
+    lap_time_string = strftimedelta(pole_lap['LapTime'], '%m:%s.%ms')
 
-st.write('\n')
-st.write('\n')
-"""
-Comparison of 2 drivers
-"""
+    def fastest_lap_comparison(fastest_laps):
 
-col1, col2, col3 = st.columns([2, 3, 2])
+        fig, ax = plt.subplots(figsize=(15, 10))
 
-with col1:
-    driver1 = st.selectbox(
-        'Select a first driver',
-        ('Driver 1', 'Driver 2', 'Driver 3'))
+        plt.style.use('dark_background')
 
-with col1:
-    driver2 = st.selectbox(
-        'Select a second driver',
-        ('Driver 1', 'Driver 2', 'Driver 3'))
+        ax.barh(fastest_laps.index, fastest_laps['LapTimeDelta'], color=team_colors, edgecolor='grey')
+        ax.set_yticks(fastest_laps.index)
+        ax.set_yticklabels(fastest_laps['Driver'])
 
-col1, col2 = st.columns([2, 2])
+        plt.suptitle(f"{session.event['EventName']} {session.event.year} Qualifying\n"
+                f"Fastest Lap: {lap_time_string} ({pole_lap['Driver']})")
 
-with col1:
-    genre = st.radio(" ",
-     ('Trial', 'Qualification', 'Sprint', 'Race'))
+        ax.invert_yaxis()
+
+        ax.set_axisbelow(True)
+        ax.xaxis.grid(True, which='major', linestyle='--', color='grey', zorder=-5000)
+
+        return fig
 
 
-"""
-* Speed comparison on fatest lap
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    fastest_lap_comparison(fastest_laps)
 
-* Time delta on fastest lap
+# Best lap comparison - Adrien - End
+# Best lap comparison - Adrien - End
+# Best lap comparison - Adrien - End
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-"""
+
+
+    col1, col2 = st.columns([2, 2])
+
+    with col1:
+        genre = st.radio("",
+        ('Trial', 'Qualification', 'Sprint', 'Race'))
+
+    with col2:
+        if genre == 'Trial':
+            st.write('You selected Trial.')
+
+        elif genre == 'Qualification':
+            st.write('You selected Qualification.')
+
+        elif genre == 'Sprint':
+            st.write('You selected Sprint.')
+
+        else:
+            st.write("You didn't select Race.")
+
+    st.write('\n')
+    st.write('\n')
+    """
+    Comparison of 2 drivers
+    """
+
+    col1, col2, col3 = st.columns([2, 3, 2])
+
+    with col1:
+        driver1 = st.selectbox(
+            'Select a first driver',
+            ('Driver 1', 'Driver 2', 'Driver 3'))
+
+    with col1:
+        driver2 = st.selectbox(
+            'Select a second driver',
+            ('Driver 1', 'Driver 2', 'Driver 3'))
+
+    col1, col2 = st.columns([2, 2])
+
+    with col1:
+        genre = st.radio(" ",
+        ('Trial', 'Qualification', 'Sprint', 'Race'))
+
+
+    """
+    * Speed comparison on fatest lap
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+    * Time delta on fastest lap
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    """
