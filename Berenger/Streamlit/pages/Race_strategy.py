@@ -32,4 +32,8 @@ st.set_page_config(
 
 
 
-st.markdown("<h1 style='text-align: center;'>Race strategy</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Race Strategy</h1>", unsafe_allow_html=True)
+st.write('\n')
+st.write('\n')
+st.write('\n')
+
