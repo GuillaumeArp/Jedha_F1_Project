@@ -1,3 +1,4 @@
+
 #Import des librairies
 import fastf1 as ff1
 from fastf1 import plotting
@@ -47,7 +48,8 @@ def dif_start_end(df):
     )
             
     fig.update_layout(hovermode='y unified')
+    
+    return fig
 
-    fig.show()
     
 dif_start_end(df)
