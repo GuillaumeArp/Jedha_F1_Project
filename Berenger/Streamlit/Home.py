@@ -26,6 +26,8 @@ from PIL import Image
 
 
 
+
+
 ### Config
 st.set_page_config(
     page_title="FastF1",
@@ -33,19 +35,23 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown(
-    """
-<style>
-.css-17ziqus.e1fqkh3o3 {
-background-color: black;
-background-image: none;
-color: #ffffff
-}
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# st.markdown(
+#     """
+# <style>
+# .css-17ziqus.e1fqkh3o3 {
+# background-color: black;
+# background-image: none;
+# color: #ffffff
+# }
+
+
+# </style>
+# """,
+#     unsafe_allow_html=True,
+# )
 
 
 
