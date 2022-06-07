@@ -22,6 +22,9 @@ import streamlit as st
 
 
 
+from PIL import Image
+
+
 
 
 
@@ -32,13 +35,44 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("<h1 style='text-align: center;'>F1 Jedha</h1>", unsafe_allow_html=True)
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# st.markdown(
+#     """
+# <style>
+# .css-17ziqus.e1fqkh3o3 {
+# background-color: black;
+# background-image: none;
+# color: #ffffff
+# }
+
+
+# </style>
+# """,
+#     unsafe_allow_html=True,
+# )
+
+
+
+image = Image.open('images/logo_test.png')
+
+st.image(image, caption='', use_column_width="always")
+
+image2 = Image.open('images/logoF1.jpg')
+
+st.sidebar.image(image2, caption='', use_column_width="always")
+
+
+
+
+
 
 st.write('\n')
 st.write('\n')
 st.write('\n')
 
-"Our project consists of XXXX and YYYY"
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 """
 * Point 1
