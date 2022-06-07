@@ -16,7 +16,7 @@
     --light-theme: #ffffff;
   }
   
-  
+/* 
 body {
 font-family: "Mulish", sans-serif;
 background-color: var(--background-color);
@@ -28,7 +28,7 @@ justify-content: center;
 align-items: center;
 
 height: 100vh;
-}
+} */
 
 .css-1q8dd3e.edgvbvh9 {
 display: flex;
@@ -58,7 +58,7 @@ box-shadow: 0 6px 30px -10px rgba(#CCCCCC, 1);
     transform: translateX(5px) translateY(-7px);
 }
 
-.shop-now {
+/* .shop-now {
 position: relative;
 .santa-icon {
     position: absolute;
@@ -192,4 +192,4 @@ margin: 3px;
     border-color: #485563; 
 }
 }
-  
+   */
