@@ -30,21 +30,24 @@ df = race.results
 df['Nombre de places gagnées'] = df['GridPosition'] - df['Position']
 
 #Affichage du graphique
-hovertemplate_gap = 'Finishing place : %{text}'+'<br>Difference from Grid : %{x:.0f} position(s)'
-df = df.sort_values(by = 'Position', ascending = False)
+def dif_start_end(df):
+    hovertemplate_gap = 'Finishing place : %{text}'+'<br>Difference from Grid : %{x:.0f} position(s)'
+    df = df.sort_values(by = 'Position', ascending = False)
 
-fig = go.Figure(
-    data = go.Bar(
-        x = df['Nombre de places gagnées']+0.1, 
-        y = df['FullName'],
-        text = df['Position'], marker_color="#" + df['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
-        name = "", 
-        orientation = 'h'),    
-    layout = go.Layout(
-        title = go.layout.Title(text = (event_name + "<br>Position at finish and gap from grid position"), x = 0.5), width = 800, height = 600, template = 'plotly_dark'
+    fig = go.Figure(
+        data = go.Bar(
+            x = df['Nombre de places gagnées']+0.1, 
+            y = df['FullName'],
+            text = df['Position'], marker_color="#" + df['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
+            name = "", 
+            orientation = 'h'),    
+        layout = go.Layout(
+            title = go.layout.Title(text = (event_name + "<br>Position at finish and gap from grid position"), x = 0.5), width = 800, height = 600, template = 'plotly_dark'
+        )
     )
-)
-        
-fig.update_layout(hovermode='y unified')
+            
+    fig.update_layout(hovermode='y unified')
 
-fig.show()
+    fig.show()
+    
+dif_start_end(df)
