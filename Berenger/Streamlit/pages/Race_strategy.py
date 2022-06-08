@@ -18,7 +18,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
-
+from PIL import Image
 
 
 
@@ -33,7 +33,11 @@ st.set_page_config(
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center;'>Race Strategy</h1>", unsafe_allow_html=True)
+image = Image.open('images/race_strategy_title.png')
+
+st.image(image, caption='', use_column_width="always")
+
+
 st.write('\n')
 st.write('\n')
 st.write('\n')

@@ -1,7 +1,6 @@
 import fastf1 as ff1
 from fastf1 import plotting
 from fastf1 import utils
-
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
@@ -19,6 +18,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
+from PIL import Image
 
 ### Import Adrien ###
 from fastf1.core import Laps
@@ -37,6 +37,10 @@ st.set_page_config(
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+image = Image.open('images/race_analysis_title.png')
+
+st.image(image, caption='', use_column_width="always")
+
 events_list = ff1.get_event_schedule(2022)[2:]
 
 year = 2022
@@ -44,7 +48,6 @@ ses = 'R'
 
 
 
-st.markdown("<h1 style='text-align: center;'>Race Analysis</h1>", unsafe_allow_html=True)
 st.write('\n')
 st.write('\n')
 st.write('\n')

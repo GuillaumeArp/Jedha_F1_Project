@@ -18,7 +18,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
-
+from PIL import Image
 
 
 ### Config
@@ -31,7 +31,10 @@ st.set_page_config(
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center;'>F1 Season 2022</h1>", unsafe_allow_html=True)
+image = Image.open('images/season_2022_title.png')
+
+st.image(image, caption='', use_column_width="always")
+
 st.write('\n')
 st.write('\n')
 st.write('\n')

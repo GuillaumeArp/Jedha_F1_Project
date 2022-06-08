@@ -55,13 +55,13 @@ with open('style.css') as f:
 
 
 
-image = Image.open('images/logo_test.png')
+image = Image.open('images/title.png')
 
 st.image(image, caption='', use_column_width="always")
 
-image2 = Image.open('images/logoF1.jpg')
+# image2 = Image.open('images/logoF1.jpg')
 
-st.sidebar.image(image2, caption='', use_column_width="always")
+# st.sidebar.image(image2, caption='', use_column_width="always")
 
 
 
