@@ -65,11 +65,18 @@ gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].value
 st.write (f'This event corresponds to round number : {gp_round}')
 
     # year = st.number_input('Select a year')
-
+drivers_standings = pd.read_csv("drivers_standings.csv", index_col = 0)
 if gp_round is not None:
 
-    session = ff1.get_session(year, gp_round, ses)
-    session.load(weather=True, telemetry=True)
+    @st.cache(allow_output_mutation=True)
+    def load_data_session():
+        session = ff1.get_session(year, gp_round, ses)
+        session.load(weather=True, telemetry=True)
+        return session
+
+    session = load_data_session()
+    
+
 
 
     st.write('\n')
@@ -197,8 +204,8 @@ if gp_round is not None:
 
     #Récupération du csv avec les points au championnat
 
-    drivers_standings = pd.read_csv("drivers_standings.csv", index_col = 0)
 
+    
 
     #Récupération des noms et des couleurs à partir d'une course
 
