@@ -57,6 +57,7 @@ with col1:
     gp_name = st.selectbox(
         'Select an event',
         (events_list["EventName"]))
+        
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 st.write (f'This event corresponds to round number : {gp_round}')
 
