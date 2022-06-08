@@ -34,10 +34,78 @@ st.set_page_config(
     layout="wide"
 )
 
+
+
+# Space for function START
+# Space for function START
+# Space for function START
+# Space for function START
+# Space for function START
+# Space for function START
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Space for function END
+# Space for function END
+# Space for function END
+# Space for function END
+# Space for function END
+# Space for function END
+# Space for function END
+
+
+
+
+
+
+
+
+
+
+
+
+
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-image = Image.open('images/race_analysis_title.png')
+image = Image.open('images/session_analysis_title.png')
 
 st.image(image, caption='', use_column_width="always")
 
