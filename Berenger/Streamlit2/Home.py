@@ -42,6 +42,10 @@ def champ_pos(year, gp_round, ses):
     
     
     #Génération du dataframe
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     df_race = session.results
     try:
         df_race.drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"],inplace=True)
