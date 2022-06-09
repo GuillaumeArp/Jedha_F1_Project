@@ -21,9 +21,9 @@ import pandas as pd
 
 #Récupération des noms et des couleurs à partir d'une course
 
-year = 2022
-gp_round = 3
-ses = 'R'
+#year = 2022
+#gp_round = 3
+#ses = 'R'
 session = ff1.get_session(year, gp_round, ses)
 session.load()
 
