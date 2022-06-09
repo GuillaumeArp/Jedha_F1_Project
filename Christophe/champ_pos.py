@@ -18,25 +18,21 @@ import pandas as pd
 
 
 
+#Récupération du csv avec les points au championnat
 
-#Récupération des noms et des couleurs à partir d'une course
+drivers_standings = pd.read_csv('D:\Data analyst\Jedha\Projet\Projet F1\Data\drivers_standings.csv', index_col = 0)
 
-#year = 2022
-#gp_round = 3
-#ses = 'R'
-session = ff1.get_session(year, gp_round, ses)
-session.load()
 
 
 #Début de la fonction
 
-def champ_pos(param):
+def champ_pos(drv):
 
-    #Récupération du csv avec les points au championnat
+    #Récupération des noms et des couleurs à partir d'une course
 
-    drivers_standings = pd.read_csv('D:\Data analyst\Jedha\Projet\Projet F1\Data\drivers_standings.csv', index_col = 0)
-    
-    
+    session = ff1.get_session(2022, 3, 'R')
+    session.load()
+    param = session.results
     #Génération du dataframe
     
     df_race = param
@@ -46,12 +42,12 @@ def champ_pos(param):
 
     #Jointure entre les deux dataframe
 
-    df_class = df_race.merge(drivers_standings, how='right', left_on = ['Abbreviation'], right_index = True).reset_index()
+    df_class = df_race.merge(drv, how='right', left_on = ['Abbreviation'], right_index = True).reset_index()
 
 
     #Modifie le dataframe pour avoir les courses en lignes
 
-    nb = len(drivers_standings.transpose())+1
+    nb = len(drv.transpose())+1
     df_final = pd.DataFrame(columns=['DriverNumber', 'BroadcastName', 'Abbreviation', 'TeamName', 'TeamColor', 'FirstName', 'LastName', 'FullName','Points', 'Race'])
     for i in range(1,nb):
         df_class_ligne = df_class.loc[:,['DriverNumber', 'BroadcastName', 'Abbreviation', 'TeamName', 'TeamColor', 'FirstName', 'LastName', 'FullName',str(i)]]
@@ -119,4 +115,4 @@ def champ_pos(param):
 
     return(fig)
 
-champ_pos(session.results)
+champ_pos(drivers_standings)
