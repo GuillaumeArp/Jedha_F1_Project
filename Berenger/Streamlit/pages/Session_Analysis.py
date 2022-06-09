@@ -358,7 +358,9 @@ with col1:
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
 if gp_round is not None:
+
     try:
+        
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
             ses = st.radio("Chose your session", (list(session_dict.values())[0]), key=list(session_dict.values())[0])
         else:
