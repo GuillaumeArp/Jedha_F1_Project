@@ -1,5 +1,5 @@
-
 #Import des librairies
+
 import fastf1 as ff1
 from fastf1 import plotting
 from fastf1 import utils
@@ -11,35 +11,42 @@ from plotly.subplots import make_subplots
 pio.templates.default = "plotly_dark"
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
+import pandas as pd
 
 #Chargement du calendrier
+
 events_list = ff1.get_event_schedule(2022)[2:]
 
-#Numéro de la course
-#round_number = input("Quel est le numéro de la course ?")
-round_number = 5
-
-#Recherche le nom du GP
-event_name = events_list[events_list['RoundNumber'] == round_number].iloc[0,3]
 
 #Chargement des données pour une course
-race = ff1.get_session(2022, round_number, 'R')
-race.load(weather=True, telemetry=True)
 
-#Calcul le gain de position entre la grille de départ et l'arrivée
-df = race.results
-df['Nombre de places gagnées'] = df['GridPosition'] - df['Position']
+year = 2022
+gp_round = 5
+ses = 'R'
+session = ff1.get_session(year, gp_round, ses)
+session.load(weather=True, telemetry=True)
 
-#Affichage du graphique
-def dif_start_end(df):
+
+#Début de la fonction
+
+def dif_start_end(df1, df2):
+    
+    #Calcul le gain de position entre la grille de départ et l'arrivée
+    df1['Nombre de places gagnées'] = df1['GridPosition'] - df1['Position']
+
+    #Recherche le nom du GP
+    #df2=pd.DataFrame(df2)
+    event_name = df2[df2['RoundNumber'] == gp_round].iloc[0,3]
+
+    #Affichage du graphique
     hovertemplate_gap = 'Finishing place : %{text}'+'<br>Difference from Grid : %{x:.0f} position(s)'
-    df = df.sort_values(by = 'Position', ascending = False)
+    df1 = df1.sort_values(by = 'Position', ascending = False)
 
     fig = go.Figure(
         data = go.Bar(
-            x = df['Nombre de places gagnées']+0.1, 
-            y = df['FullName'],
-            text = df['Position'], marker_color="#" + df['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
+            x = df1['Nombre de places gagnées']+0.1, 
+            y = df1['FullName'],
+            text = df1['Position'], marker_color="#" + df1['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
             name = "", 
             orientation = 'h'),    
         layout = go.Layout(
@@ -52,4 +59,4 @@ def dif_start_end(df):
     return fig
 
     
-dif_start_end(df)
+dif_start_end(session.results, events_list)
