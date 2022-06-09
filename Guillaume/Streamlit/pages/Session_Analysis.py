@@ -328,27 +328,11 @@ def plot_track_delta(session, lap_1, driver_1, driver_2, delta_time):
     # Show the plot
     return fig
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@st.cache(allow_output_mutation=True)
+def load_data_session():
+    session = ff1.get_session(year, gp_round, ses)
+    session.load(weather=True, telemetry=True)
+    return session
 
 # Space for function END
 # Space for function END
@@ -401,11 +385,7 @@ st.write (f'This event corresponds to round number : {gp_round}')
 drivers_standings = pd.read_csv("drivers_standings.csv", index_col = 0)
 if gp_round is not None:
 
-    @st.cache(allow_output_mutation=True)
-    def load_data_session():
-        session = ff1.get_session(year, gp_round, ses)
-        session.load(weather=True, telemetry=True)
-        return session
+
 
     session = load_data_session()
     
