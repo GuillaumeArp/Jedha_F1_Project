@@ -32,6 +32,8 @@ st.set_page_config(
 
 #Récupération des noms et des couleurs à partir d'une course
 
+
+
 @st.cache()
 def plot_champ_pos():
     '''
