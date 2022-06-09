@@ -28,6 +28,16 @@ st.set_page_config(
     layout="wide"
 )
 
+# Functions
+
+@st.cache(allow_output_mutation=True)
+def get_drivers_standings():
+    return pd.read_csv('data/drivers_standings.csv', index_col=0)
+
+@st.cache(allow_output_mutation=True)
+def get_constructors_standings():
+    return pd.read_csv('data/constructors_standings.csv', index_col=0)
+
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 

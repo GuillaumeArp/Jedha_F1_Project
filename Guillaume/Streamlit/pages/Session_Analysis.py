@@ -68,13 +68,7 @@ start_line_dict =  {1: [120, 1280, '^'],
                     22: [0, 0, '<']}
 
 
-
-# Space for function START
-# Space for function START
-# Space for function START
-# Space for function START
-# Space for function START
-# Space for function START
+# Functions
 
 def format_time(timedelta_series, num):
     '''
@@ -333,22 +327,6 @@ def load_data_session():
     session = ff1.get_session(year, gp_round, ses)
     session.load(weather=True, telemetry=True)
     return session
-
-# Space for function END
-# Space for function END
-# Space for function END
-# Space for function END
-# Space for function END
-# Space for function END
-# Space for function END
-
-
-
-
-
-
-
-
 
 
 
