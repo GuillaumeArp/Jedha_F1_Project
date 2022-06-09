@@ -42,8 +42,10 @@ def champ_pos(year, gp_round, ses):
     
     
     #Génération du dataframe
-    # dd = np.random.rand(3,2) # Berenger : Je sais pas pourquoi mais je dois modifier un truc dans la fonction pour que le cache soit vérifié ou un truc du genre ???!!! .
-    tt = np.random.randint(20, size= 20)
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     df_race = session.results
     try:
         df_race.drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"],inplace=True)
