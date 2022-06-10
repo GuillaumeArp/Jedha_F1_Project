@@ -382,6 +382,7 @@ def format_results_race(session_type):
         
         # Drop unnecessary columns
         results_formatted.drop(columns=['Status', 'Time', 'TimeStr', 'TimeDifference'], inplace=True)
+        return results_formatted
         
     elif session_type == 'Qualifying':
         results_formatted = pd.DataFrame(results.copy())
@@ -393,8 +394,7 @@ def format_results_race(session_type):
         results_formatted['Q3_time'] = temp_q3
         results_formatted = results_formatted[['Name','TeamName','Position','Q1_time','Q2_time','Q3_time']]
         results_formatted['Position'] = results_formatted['Position'].astype(int)
-            
-    return results_formatted  
+        return results_formatted 
 
 @st.cache(allow_output_mutation=True)
 def load_data_session():
