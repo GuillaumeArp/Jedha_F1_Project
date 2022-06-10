@@ -337,9 +337,10 @@ def add_driver_info():
         df_full.to_csv('../data/drivers_info.csv')
         
 def format_results_race(results, session_type):
-    
-    
-    if session_type == 'R' or session_type == 'r' or session_type == 'Sprint':
+    '''
+    Returns a formatted session results dataframe
+    '''    
+    if session_type == 'Race' or session_type == 'Sprint':
         # Get the results table, convert it to a dataframe and set the numeric columns to int        
         results_formatted = pd.DataFrame(results[['FullName','TeamName','Position','GridPosition','Time','Status','Points']].copy())
         results_formatted[['Points', 'Position', 'GridPosition']] = results_formatted[['Points', 'Position', 'GridPosition']].astype(int)
@@ -381,7 +382,7 @@ def format_results_race(results, session_type):
         # Drop unnecessary columns
         results_formatted.drop(columns=['Status', 'Time', 'TimeStr', 'TimeDifference'], inplace=True)
         
-    elif session_type == 'Q' or session_type == 'q':
+    elif session_type == 'Qualifying':
         results_formatted = pd.DataFrame(results.copy())
         temp_q1 = format_time(results['Q1'], 11)
         results_formatted['Q1_time'] = temp_q1
