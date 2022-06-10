@@ -322,6 +322,78 @@ def plot_track_delta(session, lap_1, driver_1, driver_2, delta_time):
     # Show the plot
     return fig
 
+def add_driver_info():
+    '''
+    Updates the drivers info csv
+    '''
+    drivers_info = pd.read_csv('../data/drivers_info.csv', index_col=0)
+    drivers_standings = pd.read_csv('../data/drivers_standings.csv', index_col=0)
+    missing_drivers = [x for x in drivers_standings.index.tolist() if x not in drivers_info['Abbreviation'].tolist()]
+    if len(missing_drivers) > 0:
+        df = session.results.copy().drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"])
+        for i in missing_drivers:
+            df_missing = df[df['Abbreviation'] == i]
+            df_full = pd.concat([drivers_info, df_missing])
+        df_full.to_csv('../data/drivers_info.csv')
+        
+def format_results_race(results, session_type):
+    
+    
+    if session_type == 'R' or session_type == 'r' or session_type == 'Sprint':
+        # Get the results table, convert it to a dataframe and set the numeric columns to int        
+        results_formatted = pd.DataFrame(results[['FullName','TeamName','Position','GridPosition','Time','Status','Points']].copy())
+        results_formatted[['Points', 'Position', 'GridPosition']] = results_formatted[['Points', 'Position', 'GridPosition']].astype(int)
+        results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
+        
+        # Compute time difference at finish
+        time_difference = []
+        time_1 = results_formatted['Time'][0]
+        for i in results_formatted.itertuples():
+            time_difference.append(i.Time - time_1)
+            
+        time_difference[0] = results_formatted['Time'][0]
+        results_formatted['TimeDifference'] = time_difference
+        
+        # Format the time data as string
+        time_str = []
+        for i in results_formatted.itertuples():
+            if i.Status == 'Finished':
+                time = str(i.TimeDifference)
+                time_str.append(time[8:-3])
+            elif 'Lap' in i.Status:
+                time_str.append(i.Status)
+            else:
+                time_str.append('DNF')
+                
+        results_formatted['TimeStr'] = time_str
+        
+        # Format the time data correctly
+        time_str_2 = []
+        for i in results_formatted.itertuples():
+            if i.Position == 1 or len(i.TimeStr) != 11:
+                time_str_2.append(i.TimeStr)
+            elif len(i.TimeStr) == 11:
+                time_subbed = '+' + i.TimeStr[3:]
+                time_str_2.append(time_subbed)
+                
+        results_formatted['TimeFinish'] = time_str_2
+        
+        # Drop unnecessary columns
+        results_formatted.drop(columns=['Status', 'Time', 'TimeStr', 'TimeDifference'], inplace=True)
+        
+    elif session_type == 'Q' or session_type == 'q':
+        results_formatted = pd.DataFrame(results.copy())
+        temp_q1 = format_time(results['Q1'], 11)
+        results_formatted['Q1_time'] = temp_q1
+        temp_q2 = format_time(results['Q2'], 11)
+        results_formatted['Q2_time'] = temp_q2
+        temp_q3 = format_time(results['Q3'], 11)
+        results_formatted['Q3_time'] = temp_q3
+        results_formatted = results_formatted[['Name','TeamName','Position','Q1_time','Q2_time','Q3_time']]
+        results_formatted['Position'] = results_formatted['Position'].astype(int)
+            
+    return results_formatted  
+
 @st.cache(allow_output_mutation=True)
 def load_data_session():
     session = ff1.get_session(year, gp_round, ses)

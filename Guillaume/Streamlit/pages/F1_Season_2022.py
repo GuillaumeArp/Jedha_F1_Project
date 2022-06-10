@@ -73,7 +73,11 @@ def plot_champ_pos():
     colorMap ={}
     df_class = pd.DataFrame(df_class)
     for i in df_class.itertuples() :
-        colorMap[i.Abbreviation] = '#' + i.TeamColor
+        if type(i.TeamColor) != str:
+            colorMap[i.Abbreviation] = '#FFFFFF'
+        else:
+            colorMap[i.Abbreviation] = '#' + i.TeamColor
+        
             
     df_final = df_final.sort_values(by=['Race', 'classement'], ascending = [True, True])
     maxY = df_final['Points'].max() + 20
