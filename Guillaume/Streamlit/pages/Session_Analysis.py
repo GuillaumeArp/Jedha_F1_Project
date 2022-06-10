@@ -402,7 +402,7 @@ def fastest_lap_comparison(fastest_laps):
     '''
     Plots the comparison of the best lap times of the selected session
     '''
-    drivers = pd.unique(session.laps['Driver'])
+    drivers = session.laps.pick_quicklaps()['Driver'].unique()
 
     list_fastest_laps = []
     for drv in drivers:
@@ -413,8 +413,6 @@ def fastest_lap_comparison(fastest_laps):
     pole_lap = fastest_laps.pick_fastest()
     fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
 
-    pole_lap = fastest_laps.pick_fastest()
-    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
     fastest_laps_final = fastest_laps.dropna(subset=['Time']).copy()
 
     teamcol = {}
