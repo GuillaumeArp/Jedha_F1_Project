@@ -406,7 +406,7 @@ def fastest_lap_comparison(fastest_laps):
 
     list_fastest_laps = []
     for drv in drivers:
-        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
+        drvs_fastest_lap = session.laps.pick_quicklaps().pick_driver(drv).pick_fastest()
         list_fastest_laps.append(drvs_fastest_lap)
     fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
 
