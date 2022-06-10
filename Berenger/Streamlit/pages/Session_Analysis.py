@@ -419,7 +419,7 @@ def format_results_race(session_type):
         results_formatted = results_formatted[['FullName','TeamName','Position','Q1_time','Q2_time','Q3_time']]
         results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
         results_formatted['Position'] = results_formatted['Position'].astype(int)
-        return results_formatted 
+        return results_formatted
 
 def fastest_lap_comparison(fastest_laps):
     # Pass session.laps.pick_fastest() as argument when calling the function
@@ -439,26 +439,26 @@ def fastest_lap_comparison(fastest_laps):
 
     pole_lap = fastest_laps.pick_fastest()
     fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
-    
+    fastest_laps_final = fastest_laps.dropna(subset=['Time']).copy()
+
     teamcol = {}
     df_results = pd.DataFrame(session.results)
 
     for i in df_results.itertuples():
-        teamcol[i.Abbreviation] = '#' + i.TeamColor
+        if i.Abbreviation in fastest_laps_final['Driver'].unique():        
+            teamcol[i.Abbreviation] = '#' + i.TeamColor    
 
-    fastest_laps = fastest_laps.dropna(subset=['Time'])
+    timestr = format_time(fastest_laps_final['LapTimeDelta'],13)
+    timelap = format_time(fastest_laps_final['LapTime'],11)
 
-    timestr = format_time(fastest_laps['LapTimeDelta'],13)
-    timelap = format_time(fastest_laps['LapTime'],11)
+    fastest_laps_final['Delta'] = timestr
+    fastest_laps_final['BestLapstr'] = timelap
+    fastest_laps_final['Delta'] = fastest_laps_final['Delta'].apply(lambda x: x + ' sec')
+    fastest_laps_final['BestLapstr'] = fastest_laps_final['BestLapstr'].apply(lambda x: x + ' sec')
 
-    fastest_laps['Delta']=timestr
-    fastest_laps['BestLapstr']=timelap
-    fastest_laps['Delta']=fastest_laps['Delta'].apply(lambda x : x + ' sec' )
-    fastest_laps['BestLapstr']=fastest_laps['BestLapstr'].apply(lambda x : x + ' sec' )
+    plot_title = f"{session.event.year} {session.event.EventName} - {session.name} - Fastest Lap : {fastest_laps_final['BestLapstr'].iloc[0]} - {fastest_laps_final['Driver'].iloc[0]}"
 
-    plot_title = f"{session.event.year} {session.event.EventName} - {session.name} - Fastest Lap: {fastest_laps['BestLapstr'].iloc[0]} - {fastest_laps['Driver'].iloc[0]}"
-
-    fig = px.bar(fastest_laps, 
+    fig = px.bar(fastest_laps_final, 
                 x="LapTimeDelta", 
                 y="Driver", 
                 color='Driver',
@@ -508,9 +508,7 @@ with col3:
         
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
-if gp_round is not None:
-
-    # try:
+try:
     with col4:
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
             ses = st.selectbox("Session", (list(session_dict.values())[0]), key=list(session_dict.values())[0])
@@ -518,7 +516,7 @@ if gp_round is not None:
             ses =st.selectbox("Session", (list(session_dict.values())[1]), key=list(session_dict.values())[1])
 
     session = load_data_session(year, gp_round, ses)
-    
+
     col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
     with col3:
@@ -545,14 +543,14 @@ if gp_round is not None:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
             visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 1)
         else:
-            visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Fastest laps"), key = 1)
+            visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Fastest laps"), key = 2)
 
     with col5:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 2)
+            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 3)
         else:
-            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison","Fastest laps"), key = 2)
-    
+            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison","Fastest laps"), key = 4)
+
     col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 
@@ -582,14 +580,54 @@ if gp_round is not None:
         elif visualisation_2 == "Fastest laps":
             st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
 
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    with col2:
+        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+            visualisation_3 = st.selectbox("Visualisation 3", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 5)
+        else:
+            visualisation_3 = st.selectbox("Visualisation 3", ("Drivers speed comparison", "Fastest laps"), key = 6)
 
-        
+    with col5:
+        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+            visualisation_4 = st.selectbox("Visualisation 4", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 7)
+        else:
+            visualisation_4 = st.selectbox("Visualisation 4", ("Drivers speed comparison","Fastest laps"), key = 8)
+            
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
+
+    with col2:
+        if visualisation_3 == "Drivers speed comparison":
+            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+        elif visualisation_3 == "Session results":
+            st.write("")
+            st.write("")
+            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
+            st.write("")
+            st.write("")
+            st.dataframe(format_results_race(ses))
+        elif visualisation_3 == "Fastest laps":
+            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
+
+    with col5:
+        if visualisation_4 == "Drivers speed comparison":
+            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+        elif visualisation_4 == "Session results":
+            st.write("")
+            st.write("")
+            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
+            st.write("")
+            st.write("")
+            st.dataframe(format_results_race(ses))
+        elif visualisation_4 == "Fastest laps":
+            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
             
 
 
-    # except:
-    #     st.write("No data available for this event")
+except:
+    st.write("")
+    st.write("")
+    st.markdown("<h1 style='text-align: center; color: red;'>No data available yet</h1>", unsafe_allow_html=True)
 
 
     
@@ -600,31 +638,31 @@ if gp_round is not None:
 
 
 
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
 
 
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
 
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
 
-    """
-    * Speed comparison on fatest lap
+"""
+* Speed comparison on fatest lap
 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-    * Time delta on fastest lap
+* Time delta on fastest lap
 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"""
