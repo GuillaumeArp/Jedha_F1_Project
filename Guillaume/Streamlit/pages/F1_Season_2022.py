@@ -28,11 +28,13 @@ st.set_page_config(
     layout="wide"
 )
 
+# Global variables
+
+events_list = ff1.get_event_schedule(2022)[2:]
+country_abbrev = ['BHR','SAU','AUS','ERO','MIA','ESP','MCO','AZE','CAN','GBR','AUT','FRA','HUN','BEL','NLD','ITA','SGP','JPN','USA','MXC','SAO','ABD']
+events_list['CountryAbbreviation'] = country_abbrev
+
 # Functions
-
-#Récupération des noms et des couleurs à partir d'une course
-
-
 
 @st.cache()
 def plot_champ_pos():
@@ -91,28 +93,64 @@ def plot_champ_pos():
 
     return fig
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def get_round_mapping():
+    '''
+    Returns a round to event name mapping dictionary
+    '''
+    round_mapping = {}
+    for i in events_list.itertuples():
+        round_mapping[str(i.RoundNumber)] = i.CountryAbbreviation
+    return round_mapping
 
 @st.cache(allow_output_mutation=True)
-def get_drivers_standings():
-    return pd.read_csv('data/drivers_standings.csv', index_col=0)
+def get_drivers_standings_df():
+    '''
+    Displays the drivers standings
+    '''
+    df = pd.read_csv('../data/drivers_standings.csv', index_col=0)
+    round_mapping = get_round_mapping()        
+    df.columns = df.columns.map(round_mapping)
+    return df
 
 @st.cache(allow_output_mutation=True)
 def get_constructors_standings():
-    return pd.read_csv('data/constructors_standings.csv', index_col=0)
+    '''
+    Displays the constructors standings
+    '''
+    df = pd.read_csv('../data/constructors_standings.csv', index_col=0)
+    round_mapping = get_round_mapping()        
+    df.columns = df.columns.map(round_mapping)
+    return df
+
+def plot_compare_points(driver_1, driver_2):
+    '''
+    Plots the points comparison between two drivers
+    '''
+    round_mapping = get_round_mapping() 
+    df_drivers = pd.read_csv('../data/drivers_standings.csv', index_col=0)
+    df_colors = pd.read_csv('../data/drivers_info.csv', index_col=0)
+
+    df_drivers_line = df_drivers[(df_drivers.index == driver_1) | (df_drivers.index == driver_2)].transpose().reset_index().rename(columns={'index': 'Round'})
+    df_drivers_line['country'] = df_drivers_line['Round'].map(round_mapping)
+    df_drivers_line
+
+    driver_1_team_color = '#' + df_colors[df_colors['Abbreviation'] == driver_1].values[0][4]
+    driver_2_team_color = '#' + df_colors[df_colors['Abbreviation'] == driver_2].values[0][4]
+    hovertemplate = 'Points: %{y}'
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=df_drivers_line['country'], y=df_drivers_line[driver_1], name=driver_1, line_color=driver_1_team_color, hovertemplate=hovertemplate))
+    fig.add_trace(go.Scatter(x=df_drivers_line['country'], y=df_drivers_line[driver_2], name=driver_2, line_color=driver_2_team_color, hovertemplate=hovertemplate))
+
+    fig.update_xaxes(tickangle=45)
+    fig.update_layout(width= 800, height = 600, title_text=f"Current Standings - {driver_1} vs {driver_2}", yaxis_title="Points", title_x=0.5)
+    return fig
+
+
+
+
+
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
