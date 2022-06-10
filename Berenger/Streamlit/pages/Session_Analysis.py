@@ -360,8 +360,65 @@ def add_driver_info():
             df_full = pd.concat([drivers_info, df_missing])
         df_full.to_csv('drivers_info.csv')
 
-
- 
+def format_results_race(session_type):
+    '''
+    Returns a formatted session results dataframe
+    '''    
+    results = session.results    
+    if session_type == 'Race' or session_type == 'Sprint':
+        # Get the results table, convert it to a dataframe and set the numeric columns to int        
+        results_formatted = pd.DataFrame(results[['FullName','TeamName','Position','GridPosition','Time','Status','Points']].copy())
+        results_formatted[['Points', 'Position', 'GridPosition']] = results_formatted[['Points', 'Position', 'GridPosition']].astype(int)
+        results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
+        
+        # Compute time difference at finish
+        time_difference = []
+        time_1 = results_formatted['Time'][0]
+        for i in results_formatted.itertuples():
+            time_difference.append(i.Time - time_1)
+            
+        time_difference[0] = results_formatted['Time'][0]
+        results_formatted['TimeDifference'] = time_difference
+        
+        # Format the time data as string
+        time_str = []
+        for i in results_formatted.itertuples():
+            if i.Status == 'Finished':
+                time = str(i.TimeDifference)
+                time_str.append(time[8:-3])
+            elif 'Lap' in i.Status:
+                time_str.append(i.Status)
+            else:
+                time_str.append('DNF')
+                
+        results_formatted['TimeStr'] = time_str
+        
+        # Format the time data correctly
+        time_str_2 = []
+        for i in results_formatted.itertuples():
+            if i.Position == 1 or len(i.TimeStr) != 11:
+                time_str_2.append(i.TimeStr)
+            elif len(i.TimeStr) == 11:
+                time_subbed = '+' + i.TimeStr[3:]
+                time_str_2.append(time_subbed)
+                
+        results_formatted['TimeFinish'] = time_str_2
+        
+        # Drop unnecessary columns
+        results_formatted.drop(columns=['Status', 'Time', 'TimeStr', 'TimeDifference'], inplace=True)
+        
+    elif session_type == 'Qualifying':
+        results_formatted = pd.DataFrame(results.copy())
+        temp_q1 = format_time(results['Q1'], 11)
+        results_formatted['Q1_time'] = temp_q1
+        temp_q2 = format_time(results['Q2'], 11)
+        results_formatted['Q2_time'] = temp_q2
+        temp_q3 = format_time(results['Q3'], 11)
+        results_formatted['Q3_time'] = temp_q3
+        results_formatted = results_formatted[['Name','TeamName','Position','Q1_time','Q2_time','Q3_time']]
+        results_formatted['Position'] = results_formatted['Position'].astype(int)
+            
+    return results_formatted   
 
 @st.cache(allow_output_mutation=True)
 def load_data_session(year, gp_round, ses):
@@ -428,10 +485,10 @@ if gp_round is not None:
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
     with col2:
-        visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Un autre truc"), key = 1)
+        visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Session results"), key = 1)
 
     with col5:
-        visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Un autre truc"), key = 2)
+        visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Session results"), key = 2)
     
     col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
@@ -439,10 +496,14 @@ if gp_round is not None:
     with col2:
         if visualisation_1 == "Drivers speed comparison":
             st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+        elif visualisation_2 == "Session results":
+            st.dataframe(format_results_race(ses))
 
     with col5:
         if visualisation_2 == "Drivers speed comparison":
             st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+        elif visualisation_2 == "Session results":
+            format_results_race(ses)
     
         
 
