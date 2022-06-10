@@ -41,6 +41,31 @@ country_abbrev = ['BHR','SAU','AUS','ERO','MIA','ESP','MCO','AZE','CAN','GBR','A
 events_list['CountryAbbreviation'] = country_abbrev
 session_dict = {'conventional': ['Practice 1', 'Practice 2', 'Practice 3', 'Qualifying', 'Race'],
                 'sprint': ['Practice 1', 'Qualifying', 'Practice 2', 'Sprint', 'Race']}
+
+driver_dict = {
+        'VER': "Max Verstappen",
+        "SAI": "Carlos Sainz",
+        'MSC': "Mick Schumacher",
+        "HAM": "Lewis Hamilton",
+        'OCO': "Esteban Ocon",
+        "HUL": "Nico Hulkenberg",
+        'ZHO': "Guanyu Zhou",
+        "ALB": "Alexander Albon",
+        'TSU': "1",
+        "MAG": "2",
+        'STR': "1",
+        "LEC": "2",
+        'ALO': "1",
+        "PER": "2",
+        'GAS': "1",
+        "LAT": "2",
+        'NOR': "1",
+        "RIC": "2",
+        'RUS': "1",
+        "BOT": "2"
+}
+
+
 year = 2022
 ses = 'R'
 start_line_dict =  {1: [120, 1280, '^'],
@@ -350,45 +375,67 @@ st.write('\n')
 st.write('\n')
 
 
-col1, col2, col3 = st.columns([2, 6, 2])
+col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-with col1:
-    gp_name = st.selectbox('Select an event', (events_list["EventName"]))
+with col3:
+    gp_name = st.selectbox('Event', (events_list["EventName"]))
         
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
 if gp_round is not None:
 
-    try:
-        
+    # try:
+    with col4:
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
-            ses = st.radio("Chose your session", (list(session_dict.values())[0]), key=list(session_dict.values())[0])
+            ses = st.selectbox("Session", (list(session_dict.values())[0]), key=list(session_dict.values())[0])
         else:
-            ses =st.radio("Chose your session", (list(session_dict.values())[1]), key=list(session_dict.values())[1])
+            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=list(session_dict.values())[1])
 
-        session = load_data_session(year, gp_round, ses)
-        col1, col2, col3 = st.columns([2, 2, 6])
+    session = load_data_session(year, gp_round, ses)
+    
+    col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-        with col1:
-            driver_1 = st.selectbox('Select a first driver', (session.results["Abbreviation"]), index = 0)
+    with col3:
+        driver_1 = st.selectbox('First driver', (session.results["FullName"]), index = 0)
+        # Get Abbreviation of the first driver name
+        driver_1 = session.results[session.results["FullName"] == driver_1]["Abbreviation"].values[0]
 
-        with col2:
-            driver_2 = st.selectbox('Select a second driver', (session.results["Abbreviation"]), index = 1)
+    with col4:
+        driver_2 = st.selectbox('Second driver', (session.results["FullName"]), index = 1)
+        # Get Abbreviation of the first driver name
+        driver_2 = session.results[session.results["FullName"] == driver_2]["Abbreviation"].values[0]
 
-        fastest_driver_1, fastest_driver_2 = get_fastest_laps(session, driver_1, driver_2)
-        delta_time, ref_tel, compare_tel = utils.delta_time(fastest_driver_1, fastest_driver_2)
-        car_data_1, car_data_2 = get_car_data(fastest_driver_1, fastest_driver_2)
-        lap_1, lap_2 = get_telemetry_data(fastest_driver_1, fastest_driver_2)
-        
-        
-        st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time))
+    fastest_driver_1, fastest_driver_2 = get_fastest_laps(session, driver_1, driver_2)
+    delta_time, ref_tel, compare_tel = utils.delta_time(fastest_driver_1, fastest_driver_2)
+    car_data_1, car_data_2 = get_car_data(fastest_driver_1, fastest_driver_2)
+    lap_1, lap_2 = get_telemetry_data(fastest_driver_1, fastest_driver_2)
+
+
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    with col2:
+        visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Un autre truc"), key = 1)
+
+    with col5:
+        visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Un autre truc"), key = 2)
+    
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+
+
+    with col2:
+        if visualisation_1 == "Drivers speed comparison":
+            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+
+    with col5:
+        if visualisation_2 == "Drivers speed comparison":
+            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
+    
         
 
             
 
 
-    except:
-        st.write("No data available for this event")
+    # except:
+    #     st.write("No data available for this event")
 
 
     

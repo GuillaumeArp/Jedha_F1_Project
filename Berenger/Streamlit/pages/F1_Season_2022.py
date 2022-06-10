@@ -35,6 +35,53 @@ image = Image.open('images/season_2022_title.png')
 
 st.image(image, caption='', use_column_width="always")
 
+
+st.write('\n')
+st.write('\n')
+st.write('\n')
+
+
+col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
+
+with col3:
+    driver_1 = st.selectbox('First driver', (session.results["Abbreviation"]), index = 0)
+
+with col4:
+    driver_2 = st.selectbox('Second driver', (session.results["Abbreviation"]), index = 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
 st.write('\n')
 st.write('\n')
 st.write('\n')
@@ -64,12 +111,3 @@ Racetrack shapes
 
 """
 
-col1, col2, col3 = st.columns([2, 3, 2])
-
-with col1:
-    st.selectbox(
-        'Select a racetrack',
-        ('Track 1', 'Track 2', 'Track 3'))
-
-with col3:
-    st.write("Racetrack Placeholder")
