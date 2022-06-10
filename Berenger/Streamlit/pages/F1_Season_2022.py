@@ -162,6 +162,8 @@ st.write('\n')
 st.write('\n')
 
 
+
+
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
 with col3:
@@ -174,14 +176,6 @@ with col4:
     # Get Abbreviation of the first driver name
     driver_2 = driver_info[driver_info["FullName"] == driver_2]["Abbreviation"].values[0]
 
-col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-
-with col3:
-    st.dataframe(get_drivers_standings_df())
-
-
-with col4:
-    st.dataframe(get_constructors_standings())
 
 
 col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
@@ -192,6 +186,18 @@ with col2:
 
 with col5:
     st.plotly_chart(plot_champ_pos(), use_container_width=True)
+
+col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+
+with col2:
+    st.dataframe(get_drivers_standings_df())
+
+
+with col5:
+    st.dataframe(get_constructors_standings())
+
+
+
 
 
 
