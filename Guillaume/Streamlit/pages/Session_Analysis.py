@@ -336,10 +336,11 @@ def add_driver_info():
             df_full = pd.concat([drivers_info, df_missing])
         df_full.to_csv('../data/drivers_info.csv')
         
-def format_results_race(results, session_type):
+def format_results_race(session_type):
     '''
     Returns a formatted session results dataframe
     '''    
+    results = session.results    
     if session_type == 'Race' or session_type == 'Sprint':
         # Get the results table, convert it to a dataframe and set the numeric columns to int        
         results_formatted = pd.DataFrame(results[['FullName','TeamName','Position','GridPosition','Time','Status','Points']].copy())
