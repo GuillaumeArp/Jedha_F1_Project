@@ -391,8 +391,9 @@ def format_results_race(session_type):
         temp_q2 = format_time(results['Q2'], 11)
         results_formatted['Q2_time'] = temp_q2
         temp_q3 = format_time(results['Q3'], 11)
-        results_formatted['Q3_time'] = temp_q3
-        results_formatted = results_formatted[['Name','TeamName','Position','Q1_time','Q2_time','Q3_time']]
+        results_formatted['Q3_time'] = temp_q3        
+        results_formatted = results_formatted[['FullName','TeamName','Position','Q1_time','Q2_time','Q3_time']]
+        results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
         results_formatted['Position'] = results_formatted['Position'].astype(int)
         return results_formatted 
 
