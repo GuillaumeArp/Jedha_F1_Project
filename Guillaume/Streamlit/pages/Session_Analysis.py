@@ -415,26 +415,26 @@ def fastest_lap_comparison(fastest_laps):
 
     pole_lap = fastest_laps.pick_fastest()
     fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
-    
+    fastest_laps_final = fastest_laps.dropna(subset=['Time']).copy()
+
     teamcol = {}
     df_results = pd.DataFrame(session.results)
 
     for i in df_results.itertuples():
-        teamcol[i.Abbreviation] = '#' + i.TeamColor
+        if i.Abbreviation in fastest_laps_final['Driver'].unique():        
+            teamcol[i.Abbreviation] = '#' + i.TeamColor    
 
-    fastest_laps = fastest_laps.dropna(subset=['Time'])
+    timestr = format_time(fastest_laps_final['LapTimeDelta'],13)
+    timelap = format_time(fastest_laps_final['LapTime'],11)
 
-    timestr = format_time(fastest_laps['LapTimeDelta'],13)
-    timelap = format_time(fastest_laps['LapTime'],11)
+    fastest_laps_final['Delta'] = timestr
+    fastest_laps_final['BestLapstr'] = timelap
+    fastest_laps_final['Delta'] = fastest_laps_final['Delta'].apply(lambda x: x + ' sec')
+    fastest_laps_final['BestLapstr'] = fastest_laps_final['BestLapstr'].apply(lambda x: x + ' sec')
 
-    fastest_laps['Delta']=timestr
-    fastest_laps['BestLapstr']=timelap
-    fastest_laps['Delta']=fastest_laps['Delta'].apply(lambda x : x + ' sec' )
-    fastest_laps['BestLapstr']=fastest_laps['BestLapstr'].apply(lambda x : x + ' sec' )
+    plot_title = f"{session.event.year} {session.event.EventName} - {session.name} - Fastest Lap : {fastest_laps_final['BestLapstr'].iloc[0]} - {fastest_laps_final['Driver'].iloc[0]}"
 
-    plot_title = f"{session.event.year} {session.event.EventName} - {session.name} - Fastest Lap: {fastest_laps['BestLapstr'].iloc[0]} - {fastest_laps['Driver'].iloc[0]}"
-
-    fig = px.bar(fastest_laps, 
+    fig = px.bar(fastest_laps_final, 
                 x="LapTimeDelta", 
                 y="Driver", 
                 color='Driver',
