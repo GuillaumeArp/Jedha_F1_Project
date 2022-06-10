@@ -395,7 +395,60 @@ def format_results_race(session_type):
         results_formatted = results_formatted[['FullName','TeamName','Position','Q1_time','Q2_time','Q3_time']]
         results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
         results_formatted['Position'] = results_formatted['Position'].astype(int)
-        return results_formatted 
+        return results_formatted
+    
+def fastest_lap_comparison(fastest_laps):
+    # Pass session.laps.pick_fastest() as argument when calling the function
+    '''
+    Plots the comparison of the best lap times of the selected session
+    '''
+    drivers = pd.unique(session.laps['Driver'])
+
+    list_fastest_laps = []
+    for drv in drivers:
+        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
+        list_fastest_laps.append(drvs_fastest_lap)
+    fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
+
+    pole_lap = fastest_laps.pick_fastest()
+    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
+
+    pole_lap = fastest_laps.pick_fastest()
+    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
+    
+    teamcol = {}
+    df_results = pd.DataFrame(session.results)
+
+    for i in df_results.itertuples():
+        teamcol[i.Abbreviation] = '#' + i.TeamColor
+
+    fastest_laps = fastest_laps.dropna(subset=['Time'])
+
+    timestr = format_time(fastest_laps['LapTimeDelta'],13)
+    timelap = format_time(fastest_laps['LapTime'],11)
+
+    fastest_laps['Delta']=timestr
+    fastest_laps['BestLapstr']=timelap
+    fastest_laps['Delta']=fastest_laps['Delta'].apply(lambda x : x + ' sec' )
+    fastest_laps['BestLapstr']=fastest_laps['BestLapstr'].apply(lambda x : x + ' sec' )
+
+    plot_title = f"{session.event.year} {session.event.EventName} - {session.name} - Fastest Lap: {fastest_laps['BestLapstr'].iloc[0]} - {fastest_laps['Driver'].iloc[0]}"
+
+    fig = px.bar(fastest_laps, 
+                x="LapTimeDelta", 
+                y="Driver", 
+                color='Driver',
+                color_discrete_map=teamcol ,
+                orientation='h',
+                width=1000, height=600,
+                template='plotly_dark',
+                hover_data={'Delta':True,'LapTimeDelta':False})
+
+    fig.update_layout(showlegend=False, title_text=plot_title)
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(categoryorder='total descending')
+
+    return fig
 
 @st.cache(allow_output_mutation=True)
 def load_data_session():
