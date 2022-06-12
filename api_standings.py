@@ -1,6 +1,8 @@
 import requests
 import pandas as pd
 import boto3
+import datetime
+import time
 
 
 # Ergast API base request
@@ -42,11 +44,6 @@ def update_driver_standings(rounds):
     df_drivers.sort_values(by=df_drivers.columns[-1], ascending=False, inplace=True)
     return df_drivers
 
-print('Getting drivers standings...')
-df_drivers = update_driver_standings(22)
-df_drivers.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/drivers_standings.csv')
-print('Done!')
-
 # Get constructors standings
 def update_constructor_standings(rounds):
     standings_dict = {}
@@ -68,6 +65,14 @@ def update_constructor_standings(rounds):
     df_constructors.sort_values(by=df_constructors.columns[-1], ascending=False, inplace=True)
     return df_constructors
 
+start = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+print(f"{start} - Beginning of script")
+print('----------------------------------------------------------------')
+time.sleep(1)
+print('Getting drivers standings...')
+df_drivers = update_driver_standings(22)
+df_drivers.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/drivers_standings.csv')
+print('Done!')
 print('Getting constructors standings...')
 df_constructors = update_constructor_standings(22)
 df_constructors.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/constructors_standings.csv')
@@ -79,3 +84,9 @@ s3 = boto3.resource('s3')
 s3.Bucket('f1-jedha-bucket').upload_file('/home/guillaume/Python_Projects/Jedha_F1_Project/data/constructors_standings.csv', 'data/constructors_standings.csv', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
 s3.Bucket('f1-jedha-bucket').upload_file('/home/guillaume/Python_Projects/Jedha_F1_Project/data/drivers_standings.csv', 'data/drivers_standings.csv', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
 print('Done!')
+print('----------------------------------------------------------------')
+time.sleep(1)
+end = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+print(f"{start} - End of script")
+print('\n')
+print('\n')
