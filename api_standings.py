@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import boto3
 
 
 # Ergast API base request
@@ -43,7 +44,7 @@ def update_driver_standings(rounds):
 
 print('Getting drivers standings...')
 df_drivers = update_driver_standings(22)
-df_drivers.to_csv('data/drivers_standings.csv')
+df_drivers.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/drivers_standings.csv')
 print('Done!')
 
 # Get constructors standings
@@ -69,5 +70,12 @@ def update_constructor_standings(rounds):
 
 print('Getting constructors standings...')
 df_constructors = update_constructor_standings(22)
-df_constructors.to_csv('data/constructors_standings.csv')
+df_constructors.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/constructors_standings.csv')
+print('Done!')
+
+print('Uploading...')
+session = boto3.Session()
+s3 = boto3.resource('s3')
+s3.Bucket('f1-jedha-bucket').upload_file('/home/guillaume/Python_Projects/Jedha_F1_Project/data/constructors_standings.csv', 'data/constructors_standings.csv', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
+s3.Bucket('f1-jedha-bucket').upload_file('/home/guillaume/Python_Projects/Jedha_F1_Project/data/drivers_standings.csv', 'data/drivers_standings.csv', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
 print('Done!')
