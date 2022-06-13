@@ -569,28 +569,7 @@ try:
     with col5:
         display_visualisation(decision_2)
 
-    # col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    # with col2:
-    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 5)
-    #     else:
-    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 6)
 
-    # with col5:
-    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 7)
-    #     else:
-    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 8)
-            
-    # col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
-
-
-    # with col2:
-    #     display_visualisation(decision_3)
-        
-
-    # with col5:
-    #     display_visualisation(decision_4)
             
 
 
