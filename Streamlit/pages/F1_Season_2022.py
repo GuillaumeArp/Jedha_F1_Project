@@ -41,7 +41,7 @@ def plot_champ_pos():
     '''
     Plots the evolution of the drivers standings
     '''
-    drv = pd.read_csv('drivers_standings.csv', index_col=0)
+    drv = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     drivers_info = pd.read_csv('drivers_info.csv', index_col=0)
     
     df_class = drivers_info.merge(drv, how='right', left_on = ['Abbreviation'], right_index = True).reset_index()
@@ -107,7 +107,7 @@ def get_drivers_standings_df():
     '''
     Displays the drivers standings
     '''
-    df = pd.read_csv('drivers_standings.csv', index_col=0)
+    df = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     round_mapping = get_round_mapping()        
     df.columns = df.columns.map(round_mapping)
     return df
@@ -117,7 +117,7 @@ def get_constructors_standings():
     '''
     Displays the constructors standings
     '''
-    df = pd.read_csv('constructors_standings.csv', index_col=0)
+    df = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/constructors_standings.csv', index_col=0)
     round_mapping = get_round_mapping()        
     df.columns = df.columns.map(round_mapping)
     return df
@@ -127,7 +127,7 @@ def plot_compare_points(driver_1, driver_2):
     Plots the points comparison between two drivers
     '''
     round_mapping = get_round_mapping() 
-    df_drivers = pd.read_csv('drivers_standings.csv', index_col=0)
+    df_drivers = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     df_colors = pd.read_csv('drivers_info.csv', index_col=0)
 
     df_drivers_line = df_drivers[(df_drivers.index == driver_1) | (df_drivers.index == driver_2)].transpose().reset_index().rename(columns={'index': 'Round'})

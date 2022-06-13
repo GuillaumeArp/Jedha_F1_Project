@@ -326,7 +326,7 @@ def add_driver_info():
     Updates the drivers info csv
     '''
     drivers_info = pd.read_csv('drivers_info.csv', index_col=0)
-    drivers_standings = pd.read_csv('drivers_standings.csv', index_col=0)
+    drivers_standings = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     missing_drivers = [x for x in drivers_standings.index.tolist() if x not in drivers_info['Abbreviation'].tolist()]
     if len(missing_drivers) > 0:
         df = session.results.copy().drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"])
@@ -477,7 +477,7 @@ st.write('\n')
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
 with col3:
-    gp_name = st.selectbox('Event', (events_list["EventName"]))
+    gp_name = st.selectbox('Event', (events_list["EventName"]), index = 6)
         
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
