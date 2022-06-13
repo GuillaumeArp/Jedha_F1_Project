@@ -41,6 +41,3 @@ st.image(image, caption='', use_column_width="always")
 st.write('\n')
 st.write('\n')
 st.write('\n')
-
-
-button = st.button("TEST")

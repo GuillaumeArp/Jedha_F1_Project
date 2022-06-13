@@ -42,32 +42,7 @@ events_list['CountryAbbreviation'] = country_abbrev
 session_dict = {'conventional': ['Practice 1', 'Practice 2', 'Practice 3', 'Qualifying', 'Race'],
                 'sprint': ['Practice 1', 'Qualifying', 'Practice 2', 'Sprint', 'Race']}
 
-visualisations_dict = {
-        'VER': "Max Verstappen",
-        "SAI": "Carlos Sainz",
-        'MSC': "Mick Schumacher",
-        "HAM": "Lewis Hamilton",
-        'OCO': "Esteban Ocon",
-        "HUL": "Nico Hulkenberg",
-        'ZHO': "Guanyu Zhou",
-        "ALB": "Alexander Albon",
-        'TSU': "1",
-        "MAG": "2",
-        'STR': "1",
-        "LEC": "2",
-        'ALO': "1",
-        "PER": "2",
-        'GAS': "1",
-        "LAT": "2",
-        'NOR': "1",
-        "RIC": "2",
-        'RUS': "1",
-        "BOT": "2"
-}
-
-
 year = 2022
-ses = 'R'
 start_line_dict =  {1: [120, 1280, '^'],
                     2: [-1341, 2800, '<'],
                     3: [-1228, 100, '<'],
@@ -426,19 +401,17 @@ def fastest_lap_comparison(fastest_laps):
     '''
     Plots the comparison of the best lap times of the selected session
     '''
-    drivers = pd.unique(session.laps['Driver'])
+    drivers = session.laps.pick_quicklaps()['Driver'].unique()
 
     list_fastest_laps = []
     for drv in drivers:
-        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
+        drvs_fastest_lap = session.laps.pick_quicklaps().pick_driver(drv).pick_fastest()
         list_fastest_laps.append(drvs_fastest_lap)
     fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
 
     pole_lap = fastest_laps.pick_fastest()
     fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
 
-    pole_lap = fastest_laps.pick_fastest()
-    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
     fastest_laps_final = fastest_laps.dropna(subset=['Time']).copy()
 
     teamcol = {}
@@ -511,21 +484,23 @@ gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].value
 try:
     with col4:
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
-            ses = st.selectbox("Session", (list(session_dict.values())[0]), key=list(session_dict.values())[0])
+            ses = st.selectbox("Session", (list(session_dict.values())[0]), key=10, index = 4)
         else:
-            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=list(session_dict.values())[1])
+            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
 
     session = load_data_session(year, gp_round, ses)
 
     col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
+    drivers = session.laps.pick_quicklaps()['Driver'].unique()
+
     with col3:
-        driver_1 = st.selectbox('First driver', (session.results["FullName"]), index = 0)
+        driver_1 = st.selectbox('First driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 0)
         # Get Abbreviation of the first driver name
         driver_1 = session.results[session.results["FullName"] == driver_1]["Abbreviation"].values[0]
 
     with col4:
-        driver_2 = st.selectbox('Second driver', (session.results["FullName"]), index = 1)
+        driver_2 = st.selectbox('Second driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 1)
         # Get Abbreviation of the first driver name
         driver_2 = session.results[session.results["FullName"] == driver_2]["Abbreviation"].values[0]
 
@@ -538,89 +513,84 @@ try:
 
 
 
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 2, 1, 1, 2, 1])
     with col2:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-            visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 1)
+            decision_1 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 1)
         else:
-            visualisation_1 = st.selectbox("Visualisation 1", ("Drivers speed comparison", "Fastest laps"), key = 2)
+            decision_1 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 2)
 
     with col5:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 3)
+            decision_2 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 3)
         else:
-            visualisation_2 = st.selectbox("Visualisation 2", ("Drivers speed comparison","Fastest laps"), key = 4)
+            decision_2 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 4)
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 
-    with col2:
-        if visualisation_1 == "Drivers speed comparison":
-            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
-        elif visualisation_1 == "Session results":
+    # Function to display visualisation selected
+    def display_visualisation(decision):
+
+        if decision == "Select a visualisation":
+            return st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
+
+        if decision == "Speed comparison":
+            viz1 = plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time)
+
+        elif decision == "Session results":
             st.write("")
             st.write("")
             st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
             st.write("")
             st.write("")
-            st.dataframe(format_results_race(ses))
-        elif visualisation_1 == "Fastest laps":
-            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
+            return st.dataframe(format_results_race(ses))
 
-    with col5:
-        if visualisation_2 == "Drivers speed comparison":
-            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
-        elif visualisation_2 == "Session results":
-            st.write("")
-            st.write("")
-            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
-            st.write("")
-            st.write("")
-            st.dataframe(format_results_race(ses))
-        elif visualisation_2 == "Fastest laps":
-            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
+        elif decision == "Fastest laps":
+            viz1 = fastest_lap_comparison(session.laps.pick_fastest())
 
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+        elif decision == "Speed, Gears and Delta Time comparison":
+            viz1 = plot_unstacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time)
+
+        elif decision == "Speed visualization on track layout for First Driver":
+            return st.pyplot(plot_track_speed(session, lap_1, driver_1))
+
+        elif decision == "Gears visualization on track layout for First Driver":
+            return st.pyplot(plot_track_gear(session, lap_1, driver_1))
+
+        elif decision == "Delta Time on track layout":
+            return st.pyplot(plot_track_delta(session, lap_1, driver_1, driver_2, delta_time))
+        
+        return st.plotly_chart(viz1, use_container_width=True)
+
     with col2:
-        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-            visualisation_3 = st.selectbox("Visualisation 3", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 5)
-        else:
-            visualisation_3 = st.selectbox("Visualisation 3", ("Drivers speed comparison", "Fastest laps"), key = 6)
+        display_visualisation(decision_1)
 
     with col5:
-        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-            visualisation_4 = st.selectbox("Visualisation 4", ("Drivers speed comparison", "Session results", "Fastest laps"), key = 7)
-        else:
-            visualisation_4 = st.selectbox("Visualisation 4", ("Drivers speed comparison","Fastest laps"), key = 8)
+        display_visualisation(decision_2)
+
+    # col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    # with col2:
+    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 5)
+    #     else:
+    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 6)
+
+    # with col5:
+    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 7)
+    #     else:
+    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 8)
             
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+    # col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 
-    with col2:
-        if visualisation_3 == "Drivers speed comparison":
-            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
-        elif visualisation_3 == "Session results":
-            st.write("")
-            st.write("")
-            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
-            st.write("")
-            st.write("")
-            st.dataframe(format_results_race(ses))
-        elif visualisation_3 == "Fastest laps":
-            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
+    # with col2:
+    #     display_visualisation(decision_3)
+        
 
-    with col5:
-        if visualisation_4 == "Drivers speed comparison":
-            st.plotly_chart(plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time), use_container_width=True)
-        elif visualisation_4 == "Session results":
-            st.write("")
-            st.write("")
-            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
-            st.write("")
-            st.write("")
-            st.dataframe(format_results_race(ses))
-        elif visualisation_4 == "Fastest laps":
-            st.plotly_chart(fastest_lap_comparison(session.laps.pick_fastest()))
+    # with col5:
+    #     display_visualisation(decision_4)
             
 
 
@@ -658,11 +628,7 @@ st.write('\n')
 st.write('\n')
 
 """
-* Speed comparison on fatest lap
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-* Time delta on fastest lap
+* Lorem ipsum dolor sit amet
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 """
