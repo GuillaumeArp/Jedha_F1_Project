@@ -72,14 +72,21 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+col1, col2, col3 = st.columns([3, 8, 3])
 
-"""
-* Point 1
-* Point 2
-* Point 3
-* Point 4
-"""
+with col2:
 
+    "The goal of F1 Insights is to provide a platform for the analysis of the F1 world championship."
 
-"Team: Adrien, Bérenger, Christophe, Guillaume"
+    """
+    * Made in June 2022 as a final project for the course [Data Fullstack](https://en.jedha.co/formations/formation-data-scientist)
+    * Tech stack: Docker, Streamlit, Heroku, je sais pas quel modèle de machine learning, Python, Pandas, Plotly, Matplotlib
+    """
+
+    """
+    Team
+    * Adrien: [Linkedin](https://www.linkedin.com/in/adrienory)
+    * Bérenger: [Linkedin](https://www.linkedin.com/in/berenger-queune/)
+    * Christophe: [Linkedin](https://www.linkedin.com/in/clefebvre78/)
+    * Guillaume: [Linkedin](https://www.linkedin.com/in/guillaumearp/)
+    """ 

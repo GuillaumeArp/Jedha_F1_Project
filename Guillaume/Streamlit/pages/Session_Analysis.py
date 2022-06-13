@@ -2,7 +2,7 @@ import fastf1 as ff1
 from fastf1 import plotting
 from fastf1 import utils
 plotting.setup_mpl()
-ff1.Cache.enable_cache('../../cache/')
+ff1.Cache.enable_cache('cache/')
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -41,9 +41,8 @@ country_abbrev = ['BHR','SAU','AUS','ERO','MIA','ESP','MCO','AZE','CAN','GBR','A
 events_list['CountryAbbreviation'] = country_abbrev
 session_dict = {'conventional': ['Practice 1', 'Practice 2', 'Practice 3', 'Qualifying', 'Race'],
                 'sprint': ['Practice 1', 'Qualifying', 'Practice 2', 'Sprint', 'Race']}
+
 year = 2022
-gp_round = 7
-ses = 'R'
 start_line_dict =  {1: [120, 1280, '^'],
                     2: [-1341, 2800, '<'],
                     3: [-1228, 100, '<'],
@@ -326,16 +325,16 @@ def add_driver_info():
     '''
     Updates the drivers info csv
     '''
-    drivers_info = pd.read_csv('../data/drivers_info.csv', index_col=0)
-    drivers_standings = pd.read_csv('../data/drivers_standings.csv', index_col=0)
+    drivers_info = pd.read_csv('drivers_info.csv', index_col=0)
+    drivers_standings = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     missing_drivers = [x for x in drivers_standings.index.tolist() if x not in drivers_info['Abbreviation'].tolist()]
     if len(missing_drivers) > 0:
         df = session.results.copy().drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"])
         for i in missing_drivers:
             df_missing = df[df['Abbreviation'] == i]
             df_full = pd.concat([drivers_info, df_missing])
-        df_full.to_csv('../data/drivers_info.csv')
-        
+        df_full.to_csv('drivers_info.csv')
+
 def format_results_race(session_type):
     '''
     Returns a formatted session results dataframe
@@ -396,7 +395,7 @@ def format_results_race(session_type):
         results_formatted = results_formatted.rename(columns = {'FullName': 'Name'})
         results_formatted['Position'] = results_formatted['Position'].astype(int)
         return results_formatted
-    
+
 def fastest_lap_comparison(fastest_laps):
     # Pass session.laps.pick_fastest() as argument when calling the function
     '''
@@ -449,9 +448,10 @@ def fastest_lap_comparison(fastest_laps):
     return fig
 
 @st.cache(allow_output_mutation=True)
-def load_data_session():
+def load_data_session(year, gp_round, ses):
     session = ff1.get_session(year, gp_round, ses)
     session.load(weather=True, telemetry=True)
+    add_driver_info()
     return session
 
 
@@ -474,286 +474,161 @@ st.write('\n')
 st.write('\n')
 
 
-col1, col2, col3 = st.columns([2, 4, 4])
+col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-with col1:
-
-    gp_name = st.selectbox(
-        'Select an event',
-        (events_list["EventName"]))
+with col3:
+    gp_name = st.selectbox('Event', (events_list["EventName"]), index = 6)
         
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
-st.write (f'This event corresponds to round number : {gp_round}')
 
-    # year = st.number_input('Select a year')
-drivers_standings = pd.read_csv("drivers_standings.csv", index_col = 0)
-if gp_round is not None:
+try:
+    with col4:
+        if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
+            ses = st.selectbox("Session", (list(session_dict.values())[0]), key=10, index = 4)
+        else:
+            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
 
+    session = load_data_session(year, gp_round, ses)
 
+    col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-    session = load_data_session()
-    
+    drivers = session.laps.pick_quicklaps()['Driver'].unique()
 
+    with col3:
+        driver_1 = st.selectbox('First driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 0)
+        # Get Abbreviation of the first driver name
+        driver_1 = session.results[session.results["FullName"] == driver_1]["Abbreviation"].values[0]
 
+    with col4:
+        driver_2 = st.selectbox('Second driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 1)
+        # Get Abbreviation of the first driver name
+        driver_2 = session.results[session.results["FullName"] == driver_2]["Abbreviation"].values[0]
 
-    st.write('\n')
-    st.write('\n')
-    st.write('\n')
-
-    """
-    Race ranking
-
-    Starting Grid
-
-    Race chart ?
-    """
-
-# Best lap comparison - Adrien - Start
-# Best lap comparison - Adrien - Start
-# Best lap comparison - Adrien - Start
-
-    """
-    Best lap comparison
-    """
-
-    drivers = pd.unique(session.laps['Driver'])
-    list_fastest_laps = list()
-    for drv in drivers:
-        drvs_fastest_lap = session.laps.pick_driver(drv).pick_fastest()
-        list_fastest_laps.append(drvs_fastest_lap)
-        fastest_laps = Laps(list_fastest_laps).sort_values(by='LapTime').reset_index(drop=True)
-
-    pole_lap = fastest_laps.pick_fastest()
-    fastest_laps['LapTimeDelta'] = fastest_laps['LapTime'] - pole_lap['LapTime']
-
-    team_colors = list()
-    for index, lap in fastest_laps.iterlaps():
-        color = ff1.plotting.team_color(lap['Team'])
-        team_colors.append(color)
-
-    lap_time_string = strftimedelta(pole_lap['LapTime'], '%m:%s.%ms')
-
-    def fastest_lap_comparison(fastest_laps):
-
-        fig, ax = plt.subplots(figsize=(20, 5))
-
-        plt.style.use('dark_background')
-
-        ax.barh(fastest_laps.index, fastest_laps['LapTimeDelta'], color=team_colors, edgecolor='grey')
-        ax.set_yticks(fastest_laps.index)
-        ax.set_yticklabels(fastest_laps['Driver'])
-
-        plt.suptitle(f"{session.event['EventName']} {session.event.year} Qualifying\n"
-                f"Fastest Lap: {lap_time_string} ({pole_lap['Driver']})")
-
-        ax.invert_yaxis()
-
-        ax.set_axisbelow(True)
-        ax.xaxis.grid(True, which='major', linestyle='--', color='grey', zorder=-5000)
-
-        return fig
+    fastest_driver_1, fastest_driver_2 = get_fastest_laps(session, driver_1, driver_2)
+    delta_time, ref_tel, compare_tel = utils.delta_time(fastest_driver_1, fastest_driver_2)
+    car_data_1, car_data_2 = get_car_data(fastest_driver_1, fastest_driver_2)
+    lap_1, lap_2 = get_telemetry_data(fastest_driver_1, fastest_driver_2)
 
 
 
-    st.pyplot(fastest_lap_comparison(fastest_laps))
-
-# Best lap comparison - Adrien - End
-# Best lap comparison - Adrien - End
-# Best lap comparison - Adrien - End
-
-# Gap comparison - Christophe - Start
-# Gap comparison - Christophe - Start
-# Gap comparison - Christophe - Start
-
-    """
-    Gap Christophe
-    """
-
-    #Chargement du calendrier
-
-    #Numéro de la course
-    #round_number = input("Quel est le numéro de la course ?")
-
-    #Recherche le nom du GP
-
-    event_name = events_list[events_list['RoundNumber'] == gp_round].iloc[0,3]
 
 
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 2, 1, 1, 2, 1])
+    with col2:
+        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+            decision_1 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 1)
+        else:
+            decision_1 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 2)
 
-    #Chargement des données pour une course
+    with col5:
+        if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+            decision_2 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 3)
+        else:
+            decision_2 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 4)
 
-    #Calcul le gain de position entre la grille de départ et l'arrivée
-    df = session.results
-    df['Nombre de places gagnées'] = df['GridPosition'] - df['Position']
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 
-    #Affichage du graphique
-    def dif_start_end(df):
-        hovertemplate_gap = 'Finishing place : %{text}'+'<br>Difference from Grid : %{x:.0f} position(s)'
-        df = df.sort_values(by = 'Position', ascending = False)
+    # Function to display visualisation selected
+    def display_visualisation(decision):
 
-        fig = go.Figure(
-            data = go.Bar(
-                x = df['Nombre de places gagnées']+0.1, 
-                y = df['FullName'],
-                text = df['Position'], marker_color="#" + df['TeamColor'], textposition = "outside", hovertemplate = hovertemplate_gap,
-                name = "", 
-                orientation = 'h'),    
-            layout = go.Layout(
-                title = go.layout.Title(text = (event_name + "<br>Position at finish and gap from grid position"), x = 0.5), width = 1300, height = 1000, template = 'plotly_dark'
-            )
-        )
-                
-        fig.update_layout(hovermode='y unified')
+        if decision == "Select a visualisation":
+            return st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
 
-        return fig
+        if decision == "Speed comparison":
+            viz1 = plot_stacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time)
 
+        elif decision == "Session results":
+            st.write("")
+            st.write("")
+            st.markdown("<h5 style='text-align: center; color: white;'>Session results</h5>", unsafe_allow_html=True)
+            st.write("")
+            st.write("")
+            return st.dataframe(format_results_race(ses))
+
+        elif decision == "Fastest laps":
+            viz1 = fastest_lap_comparison(session.laps.pick_fastest())
+
+        elif decision == "Speed, Gears and Delta Time comparison":
+            viz1 = plot_unstacked_data(session, car_data_1, car_data_2, driver_1, driver_2, ref_tel, delta_time)
+
+        elif decision == "Speed visualization on track layout for First Driver":
+            return st.pyplot(plot_track_speed(session, lap_1, driver_1))
+
+        elif decision == "Gears visualization on track layout for First Driver":
+            return st.pyplot(plot_track_gear(session, lap_1, driver_1))
+
+        elif decision == "Delta Time on track layout":
+            return st.pyplot(plot_track_delta(session, lap_1, driver_1, driver_2, delta_time))
         
-    st.plotly_chart(dif_start_end(df))
-
-# Gap comparison - Christophe - End
-# Gap comparison - Christophe - End
-# Gap comparison - Christophe - End
-
-# champ_pos.py - Christophe - Start
-# champ_pos.py - Christophe - Start
-# champ_pos.py - Christophe - Start
-
-    #Récupération du csv avec les points au championnat
-
-
-    
-
-    #Récupération des noms et des couleurs à partir d'une course
-
-    race = ff1.get_session(2022, 3, 'R')
-    race.load()
-    df_race = race.results
-    df_race.drop(columns=["Position", "GridPosition", "Q1", "Q2", "Q3", "Time", "Status", "Points"],inplace=True)
-    df_race.reset_index()
-
-
-    #Jointure entre les deux dataframe
-
-    df_class = df_race.merge(drivers_standings, how='right', left_on = ['Abbreviation'], right_index = True).reset_index()
-
-
-    #Modifie le dataframe pour avoir les courses en lignes
-
-    nb = len(drivers_standings.transpose())+1
-    df_final = pd.DataFrame(columns=['DriverNumber', 'BroadcastName', 'Abbreviation', 'TeamName', 'TeamColor', 'FirstName', 'LastName', 'FullName','Points', 'Race'])
-    for i in range(1,nb):
-        df_class_ligne = df_class.loc[:,['DriverNumber', 'BroadcastName', 'Abbreviation', 'TeamName', 'TeamColor', 'FirstName', 'LastName', 'FullName',str(i)]]
-        df_class_ligne['Race'] = i
-        df_class_ligne.rename(columns={str(i): 'Points'}, inplace = True)
-        df_final = pd.concat([df_final, df_class_ligne])
-        
-    df_final.reset_index(drop = True, inplace = True)
-
-
-    #Ajoute une colonne classement avec la position au championnat à l'issue de chaque course
-
-    df_final = df_final.sort_values(by=['Race', 'Points'], ascending = [True, False])
-    df_final['classement']=0
-    longueur = len(df_final)
-    df_final.iloc[0,10] = 1
-
-    for i in range(1,longueur -1):
-        if df_final.iloc[i,9] == df_final.iloc[i-1,9]:
-            df_final.iloc[i,10] = df_final.iloc[i-1,10] +  1
-        else :
-            df_final.iloc[i,10] = 1
-            
-            
-    # Paramétrage du dictionnaire des couleurs
-
-    colorMap ={}
-    df_class = pd.DataFrame(df_class)
-
-    for i in df_class.itertuples() :
-        if i.Abbreviation == 'HUL' :
-            colorMap[i.Abbreviation] = '#' + '2d826d'
-        else :
-            colorMap[i.Abbreviation] = '#' + i.TeamColor
-            
-            
-    #Création du graphique
-
-
-    def champ_pos(df_final):
-        df_final = df_final.sort_values(by=['Race', 'classement'], ascending = [True, True])
-
-        maxY = df_final['Points'].max() + 20
-
-        fig = px.bar(df_final, x="Abbreviation", y="Points",  color = "Abbreviation", color_discrete_map = colorMap, animation_frame="Race", 
-                    labels=dict(Abbreviation="Name", classement="Ranking", FullName = "Pilot"), width = 1000, height=800, text = df_final['classement'])
-
-
-        fig.update_layout(title_text='Evolution of points in the championship', title_x=0.5, transition = {'duration': 1000})
-
-        fig.update_traces(textposition='inside', hovertemplate='Points: %{y}' )
-
-        fig.update_yaxes(range=[0, maxY])
-
-        return(fig)
-
-    st.plotly_chart(champ_pos(df_final))
-
-# champ_pos.py - Christophe - End
-# champ_pos.py - Christophe - End
-# champ_pos.py - Christophe - End
-
-
-    col1, col2 = st.columns([2, 2])
-
-    with col1:
-        genre = st.radio("",
-        ('Trial', 'Qualification', 'Sprint', 'Race'))
+        return st.plotly_chart(viz1, use_container_width=True)
 
     with col2:
-        if genre == 'Trial':
-            st.write('You selected Trial.')
+        display_visualisation(decision_1)
 
-        elif genre == 'Qualification':
-            st.write('You selected Qualification.')
+    with col5:
+        display_visualisation(decision_2)
 
-        elif genre == 'Sprint':
-            st.write('You selected Sprint.')
+    # col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    # with col2:
+    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 5)
+    #     else:
+    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 6)
 
-        else:
-            st.write("You didn't select Race.")
-
-    st.write('\n')
-    st.write('\n')
-    """
-    Comparison of 2 drivers
-    """
-
-    col1, col2, col3 = st.columns([2, 3, 2])
-
-    with col1:
-        driver1 = st.selectbox(
-            'Select a first driver',
-            ('Driver 1', 'Driver 2', 'Driver 3'))
-
-    with col1:
-        driver2 = st.selectbox(
-            'Select a second driver',
-            ('Driver 1', 'Driver 2', 'Driver 3'))
-
-    col1, col2 = st.columns([2, 2])
-
-    with col1:
-        genre = st.radio(" ",
-        ('Trial', 'Qualification', 'Sprint', 'Race'))
+    # with col5:
+    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
+    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 7)
+    #     else:
+    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 8)
+            
+    # col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 
-    """
-    * Speed comparison on fatest lap
+    # with col2:
+    #     display_visualisation(decision_3)
+        
 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    # with col5:
+    #     display_visualisation(decision_4)
+            
 
-    * Time delta on fastest lap
 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    """
+except:
+    st.write("")
+    st.write("")
+    st.markdown("<h1 style='text-align: center; color: red;'>No data available yet</h1>", unsafe_allow_html=True)
+
+
+    
+
+
+
+    
+
+
+
+st.write('\n')
+st.write('\n')
+st.write('\n')
+
+
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+st.write('\n')
+
+st.write('\n')
+st.write('\n')
+st.write('\n')
+
+"""
+* Lorem ipsum dolor sit amet
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"""

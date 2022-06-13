@@ -41,8 +41,8 @@ def plot_champ_pos():
     '''
     Plots the evolution of the drivers standings
     '''
-    drv = pd.read_csv('../data/drivers_standings.csv', index_col=0)
-    drivers_info = pd.read_csv('../data/drivers_info.csv', index_col=0)
+    drv = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
+    drivers_info = pd.read_csv('drivers_info.csv', index_col=0)
     
     df_class = drivers_info.merge(drv, how='right', left_on = ['Abbreviation'], right_index = True).reset_index()
 
@@ -107,7 +107,7 @@ def get_drivers_standings_df():
     '''
     Displays the drivers standings
     '''
-    df = pd.read_csv('../data/drivers_standings.csv', index_col=0)
+    df = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
     round_mapping = get_round_mapping()        
     df.columns = df.columns.map(round_mapping)
     return df
@@ -117,7 +117,7 @@ def get_constructors_standings():
     '''
     Displays the constructors standings
     '''
-    df = pd.read_csv('../data/constructors_standings.csv', index_col=0)
+    df = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/constructors_standings.csv', index_col=0)
     round_mapping = get_round_mapping()        
     df.columns = df.columns.map(round_mapping)
     return df
@@ -127,12 +127,12 @@ def plot_compare_points(driver_1, driver_2):
     Plots the points comparison between two drivers
     '''
     round_mapping = get_round_mapping() 
-    df_drivers = pd.read_csv('../data/drivers_standings.csv', index_col=0)
-    df_colors = pd.read_csv('../data/drivers_info.csv', index_col=0)
+    df_drivers = pd.read_csv('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/drivers_standings.csv', index_col=0)
+    df_colors = pd.read_csv('drivers_info.csv', index_col=0)
 
     df_drivers_line = df_drivers[(df_drivers.index == driver_1) | (df_drivers.index == driver_2)].transpose().reset_index().rename(columns={'index': 'Round'})
     df_drivers_line['country'] = df_drivers_line['Round'].map(round_mapping)
-    df_drivers_line
+    # df_drivers_line
 
     driver_1_team_color = '#' + df_colors[df_colors['Abbreviation'] == driver_1].values[0][4]
     driver_2_team_color = '#' + df_colors[df_colors['Abbreviation'] == driver_2].values[0][4]
@@ -147,9 +147,7 @@ def plot_compare_points(driver_1, driver_2):
     fig.update_layout(width= 800, height = 600, title_text=f"Current Standings - {driver_1} vs {driver_2}", yaxis_title="Points", title_x=0.5)
     return fig
 
-
-
-
+driver_info = pd.read_csv('drivers_info.csv', index_col=0)
 
 
 with open('style.css') as f:
@@ -163,37 +161,71 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
-"""
-Race calendar
-* Point 1
-* Point 2
-"""
-st.write('\n')
-st.write('\n')
-"""
-Season ranking
-* Drivers
-    * VER
-    * CRO
-* Team
-    * Renault
-    * Peugeot
-"""
-st.write('\n')
-st.write('\n')
-
-"""
-Racetrack shapes
 
 
-"""
 
-col1, col2, col3 = st.columns([2, 3, 2])
-
-with col1:
-    st.selectbox(
-        'Select a racetrack',
-        ('Track 1', 'Track 2', 'Track 3'))
+col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
 with col3:
-    st.write("Racetrack Placeholder")
+    driver_1 = st.selectbox('First driver', (driver_info["FullName"]), index = 0)
+    # Get Abbreviation of the first driver name
+    driver_1 = driver_info[driver_info["FullName"] == driver_1]["Abbreviation"].values[0]
+
+with col4:
+    driver_2 = st.selectbox('Second driver', (driver_info["FullName"]), index = 1)
+    # Get Abbreviation of the first driver name
+    driver_2 = driver_info[driver_info["FullName"] == driver_2]["Abbreviation"].values[0]
+
+
+
+col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+
+with col2:
+    st.plotly_chart(plot_compare_points(driver_1, driver_2), use_container_width=True)
+
+
+with col5:
+    st.plotly_chart(plot_champ_pos(), use_container_width=True)
+
+col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+
+with col2:
+    st.dataframe(get_drivers_standings_df())
+
+
+with col5:
+    st.dataframe(get_constructors_standings())
+
+
+
+
+
+
+
+
+
+
+# """
+# Race calendar
+# * Point 1
+# * Point 2
+# """
+# st.write('\n')
+# st.write('\n')
+# """
+# Season ranking
+# * Drivers
+#     * VER
+#     * CRO
+# * Team
+#     * Renault
+#     * Peugeot
+# """
+# st.write('\n')
+# st.write('\n')
+
+# """
+# Racetrack shapes
+
+
+# """
