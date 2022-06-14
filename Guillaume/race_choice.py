@@ -4,10 +4,11 @@ import pandas as pd
 
 # Définition des variables
 
+gp_round = 7
 dict_nb_laps = {1: 57, 2: 50, 3: 58, 4: 63, 5: 57, 6: 66, 7: 78, 8: 51, 9: 70, 10: 52, 11: 71, 12: 53, 13: 70, 14: 44, 15: 72, 16: 53, 17: 61, 18: 53, 19: 56, 20: 71, 21: 71, 22: 58}
 
 # Course ??
-tourTot = 78 #A modifier selon la course
+tourTot = dict_nb_laps[gp_round]
 perteArret = 25
 
 
@@ -42,7 +43,7 @@ for i in range(1,tourTot):
         
 
 # Ouvre le csv avec le temps par tour et type de pneu
-dffp_complet = pd.read_csv('temp\Monaco.csv', sep = ",")
+dffp_complet = pd.read_csv(f'../data/prediction_times_round_{gp_round}.csv', index_col=0)
 dffp_complet.head()
 
 
