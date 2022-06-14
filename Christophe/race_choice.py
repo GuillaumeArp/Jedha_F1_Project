@@ -1,18 +1,5 @@
 #Import des librairies
 
-import fastf1 as ff1
-from fastf1 import plotting
-from fastf1 import utils
-ff1.Cache.enable_cache('D:\Data analyst\Jedha\Projet\Projet F1\doc_cache')
-import plotly.express as px
-import plotly.graph_objects as go
-import plotly.io as pio
-from plotly.subplots import make_subplots
-pio.templates.default = "plotly_dark"
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-import requests
-
 import pandas as pd
 
 # Définition des variables
