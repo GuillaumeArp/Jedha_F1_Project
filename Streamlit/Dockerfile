@@ -10,5 +10,4 @@ RUN apt install curl -y
 RUN pip install pandas streamlit plotly numpy fastf1 matplotlib nbformat
 COPY . /home/app
 
-ENTRYPOINT ["streamlit","run"]
-CMD ["Home.py"]
+CMD streamlit run --server.port $PORT Home.py
