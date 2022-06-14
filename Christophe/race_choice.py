@@ -18,7 +18,7 @@ import pandas as pd
 # Définition des variables
 
 # Course ??
-tourTot = 78
+tourTot = 78 #A modifier selon la course
 perteArret = 25
 
 
@@ -53,7 +53,7 @@ for i in range(1,tourTot):
         
 
 # Ouvre le csv avec le temps par tour et type de pneu
-dffp_complet = pd.read_csv('D:\Data analyst\Jedha\Projet\Projet F1\Data\dffp_complet.csv', sep = ";")
+dffp_complet = pd.read_csv('D:\Data analyst\Jedha\Projet\Projet F1\Data\Monaco.csv', sep = ",")
 dffp_complet.head()
 
 
@@ -287,4 +287,8 @@ df_timerace2['Total_time'] = df_timerace2['TimeT1'] + df_timerace2['TimeT2'] + d
 df_timerace = pd.concat([df_timerace2,df_timerace3], ignore_index = True)
 
 # Affiche les 10 combinaisons les plus performantes
-df_timerace = df_timerace.sort_values(['Total_time'], ascending=True).head(10)
+df_timerace = df_timerace.sort_values(['Total_time'], ascending=True)
+
+
+#Export en csv
+df_timerace.to_csv(r'D:\Data analyst\Jedha\Projet\Projet F1\Data\df_timerace.csv')
