@@ -464,6 +464,15 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
+col1, col2, col3 = st.columns([3, 8, 3])
+
+with col2:
+    """
+    * On this page, you can pick an event, and one of its sessions, then two of the drivers that participated in the session.
+    * You can pick up to two different visualizations to display of each side of the page. Please note that the session results table is not avaible for Free Practice sessions.
+    * Please let the page load entirely before trying to use another dropdown menu. If that session data has not be loaded to the cache yet, it may take up to a minute to load.
+    """
+
 
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
@@ -477,13 +486,16 @@ try:
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
             ses = st.selectbox("Session", (list(session_dict.values())[0]), key=10, index = 4)
         else:
-            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
+            ses = st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
 
     session = load_data_session(year, gp_round, ses)
 
     col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-    drivers = session.laps.pick_quicklaps()['Driver'].unique()
+    if len(session.laps.pick_quicklaps()['Driver'].unique()) > 2:
+        drivers = session.laps.pick_quicklaps()['Driver'].unique()
+    else:
+        drivers = session.laps['Driver'].unique()
 
     with col3:
         driver_1 = st.selectbox('First driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 0)
@@ -499,8 +511,6 @@ try:
     delta_time, ref_tel, compare_tel = utils.delta_time(fastest_driver_1, fastest_driver_2)
     car_data_1, car_data_2 = get_car_data(fastest_driver_1, fastest_driver_2)
     lap_1, lap_2 = get_telemetry_data(fastest_driver_1, fastest_driver_2)
-
-
 
 
 
@@ -559,32 +569,7 @@ try:
 
     with col5:
         display_visualisation(decision_2)
-
-    # col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    # with col2:
-    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 5)
-    #     else:
-    #         decision_3 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 6)
-
-    # with col5:
-    #     if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
-    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Session results", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 7)
-    #     else:
-    #         decision_4 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 8)
             
-    # col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
-
-
-    # with col2:
-    #     display_visualisation(decision_3)
-        
-
-    # with col5:
-    #     display_visualisation(decision_4)
-            
-
-
 except:
     st.write("")
     st.write("")
@@ -617,9 +602,3 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 st.write('\n')
-
-"""
-* Lorem ipsum dolor sit amet
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-"""

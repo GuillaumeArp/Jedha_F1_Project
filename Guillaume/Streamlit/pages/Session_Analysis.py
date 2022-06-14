@@ -514,8 +514,6 @@ try:
 
 
 
-
-
     col1, col2, col3, col4, col5, col6 = st.columns([1, 2, 1, 1, 2, 1])
     with col2:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':

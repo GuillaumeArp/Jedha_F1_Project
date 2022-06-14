@@ -1,6 +1,5 @@
 import fastf1 as ff1
 from fastf1 import plotting
-from fastf1 import utils
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
@@ -8,15 +7,9 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from plotly.subplots import make_subplots
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from matplotlib.animation import FuncAnimation
 pio.templates.default = "plotly_dark"
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import streamlit as st
 from PIL import Image
 
@@ -162,7 +155,16 @@ st.write('\n')
 st.write('\n')
 
 
+col1, col2, col3 = st.columns([3, 8, 3])
 
+with col2:
+    
+    """
+    * On this page you will be able to pick two drivers and look at their points after each race on the left side.
+    * On the right side, you will be able to watch the points evolution for the entire board after each race.
+    """
+st.write('\n')
+st.write('\n')    
 
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
@@ -186,6 +188,18 @@ with col2:
 
 with col5:
     st.plotly_chart(plot_champ_pos(), use_container_width=True)
+
+col1, col2, col3 = st.columns([3, 8, 3])
+
+with col2:
+    
+    """
+    * Below are displayed the drivers and constructors standings, showing their cumulated points after each race.
+    * The tables can be resized at will by dragging the bottom right corner.
+    * The default ranking is the one after the latest race, but the order can be changed to display the ranking after a particular race, by clicking on that race's column title.
+    """
+st.write('\n')
+st.write('\n')
 
 col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
