@@ -464,6 +464,15 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
+col1, col2, col3 = st.columns([3, 8, 3])
+
+with col2:
+    """
+    * On this page, you can pick an event, and one of its sessions, then two of the drivers that participated in the session.
+    * You can pick up to two different visualizations to display of each side of the page. Please note that the session results table is not avaible for Free Practice sessions.
+    * Please let the page load entirely before trying to use another dropdown menu. If that session data has not be loaded to the cache yet, it may take up to a minute to load.
+    """
+
 
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
@@ -595,9 +604,3 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 st.write('\n')
-
-"""
-* Lorem ipsum dolor sit amet
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-"""
