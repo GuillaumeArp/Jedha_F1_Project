@@ -441,7 +441,7 @@ def fastest_lap_comparison(fastest_laps):
 @st.cache(allow_output_mutation=True)
 def load_data_session(year, gp_round, ses):
     session = ff1.get_session(year, gp_round, ses)
-    session.load(weather=True, telemetry=True)
+    session.load(weather=False, telemetry=True, messages=False)
     add_driver_info()
     return session
 
