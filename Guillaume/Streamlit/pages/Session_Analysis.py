@@ -12,11 +12,10 @@ from plotly.subplots import make_subplots
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from matplotlib.animation import FuncAnimation
 pio.templates.default = "plotly_dark"
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+import requests
 import streamlit as st
 from PIL import Image
 
@@ -43,31 +42,16 @@ session_dict = {'conventional': ['Practice 1', 'Practice 2', 'Practice 3', 'Qual
                 'sprint': ['Practice 1', 'Qualifying', 'Practice 2', 'Sprint', 'Race']}
 
 year = 2022
-start_line_dict =  {1: [120, 1280, '^'],
-                    2: [-1341, 2800, '<'],
-                    3: [-1228, 100, '<'],
-                    4: [-1533, -650, '<'],
-                    5: [2633, 128, '>'],
-                    6: [25, -469, '<'],
-                    7: [-8065, -6549, '^'],
-                    8: [700, 350, '>'],
-                    9: [0, 0, '<'],
-                    10: [0, 0, '<'],
-                    11: [0, 0, '<'],
-                    12: [0, 0, '<'],
-                    13: [0, 0, '<'],
-                    14: [0, 0, '<'],
-                    15: [0, 0, '<'],
-                    16: [0, 0, '<'],
-                    17: [0, 0, '<'],
-                    18: [0, 0, '<'],
-                    19: [0, 0, '<'],
-                    20: [0, 0, '<'],
-                    21: [0, 0, '<'],
-                    22: [0, 0, '<']}
 
 
 # Functions
+
+def get_start_line_data():
+    '''
+    Returns a dict with the start line postitions
+    '''
+    start_line_dict_temp = requests.get('https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/start_line_dict.json').json()
+    return {int(k): v for k, v in start_line_dict_temp.items()} 
 
 def format_time(timedelta_series, num):
     '''
@@ -160,6 +144,7 @@ def plot_track_speed(session, lap_1, driver_1):
     Plots the fastest lap speed on track for the selected driver
     '''    
     # Variables definitions
+    start_line_dict = get_start_line_data()
     colormap_speed = mpl.cm.RdYlGn
     points = np.array([lap_1['X'], lap_1['Y']]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -208,8 +193,11 @@ def plot_track_speed(session, lap_1, driver_1):
     return fig
 
 def plot_track_gear(session, lap_1, driver_1):
-
+    '''
+    Plots the fastest lap gears usage on track for the selected driver
+    '''   
     # Variables definitions
+    start_line_dict = get_start_line_data()
     colormap_gear = mpl.cm.get_cmap('RdYlGn', 8)
     points = np.array([lap_1['X'], lap_1['Y']]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -268,8 +256,11 @@ def delta_bounds(vmin, vmax):
     return vmin, vmax
 
 def plot_track_delta(session, lap_1, driver_1, driver_2, delta_time):
-
+    '''
+    Plots the delta time comparison for the fastests laps on track for the selected drivers
+    '''   
     # Variables definitions
+    start_line_dict = get_start_line_data()
     colormap_speed = mpl.cm.RdYlGn
     points = np.array([lap_1['X'], lap_1['Y']]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -450,7 +441,7 @@ def fastest_lap_comparison(fastest_laps):
 @st.cache(allow_output_mutation=True)
 def load_data_session(year, gp_round, ses):
     session = ff1.get_session(year, gp_round, ses)
-    session.load(weather=True, telemetry=True)
+    session.load(weather=False, telemetry=True, messages=False)
     add_driver_info()
     return session
 
@@ -486,13 +477,16 @@ try:
         if list(events_list[events_list["RoundNumber"] == gp_round]["EventFormat"])[0] == list(session_dict.keys())[0]:
             ses = st.selectbox("Session", (list(session_dict.values())[0]), key=10, index = 4)
         else:
-            ses =st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
+            ses = st.selectbox("Session", (list(session_dict.values())[1]), key=11, index = 4)
 
     session = load_data_session(year, gp_round, ses)
 
     col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
-    drivers = session.laps.pick_quicklaps()['Driver'].unique()
+    if len(session.laps.pick_quicklaps()['Driver'].unique()) > 2:
+        drivers = session.laps.pick_quicklaps()['Driver'].unique()
+    else:
+        drivers = session.laps['Driver'].unique()
 
     with col3:
         driver_1 = st.selectbox('First driver', (session.results[session.results.Abbreviation.isin(drivers)]["FullName"]), index = 0)
@@ -568,11 +562,7 @@ try:
 
     with col5:
         display_visualisation(decision_2)
-
-
             
-
-
 except:
     st.write("")
     st.write("")
