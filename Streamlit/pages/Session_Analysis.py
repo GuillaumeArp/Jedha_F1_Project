@@ -1,6 +1,7 @@
 import fastf1 as ff1
 from fastf1 import plotting
 from fastf1 import utils
+from fastf1.core import Laps
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
@@ -19,11 +20,6 @@ import requests
 import streamlit as st
 from PIL import Image
 
-### Import Adrien ###
-from fastf1.core import Laps
-from timple.timedelta import strftimedelta
-ff1.plotting.setup_mpl(mpl_timedelta_support=True, color_scheme=None, misc_mpl_mods=False)
-### Import Adrien ###
 
 
 ### Config
