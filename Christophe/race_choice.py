@@ -71,8 +71,8 @@ dffp_hard = dffp_complet[dffp_complet['Compound']=='HARD']
 dffp_hard.drop(columns = ['Compound'], inplace = True)
 dffp_hard.rename(columns={'LapTime': 'H'}, inplace = True)
 
-dffp_final = dffp_soft.merge(dffp_medium, how = 'inner', left_on = 'tyreLife', right_on = 'tyreLife' )
-dffp_final = dffp_final.merge(dffp_hard, how = 'inner', left_on = 'tyreLife', right_on = 'tyreLife' )
+dffp_final = dffp_soft.merge(dffp_medium, how = 'inner', left_on = 'TyreLife', right_on = 'TyreLife' )
+dffp_final = dffp_final.merge(dffp_hard, how = 'inner', left_on = 'TyreLife', right_on = 'TyreLife' )
 
 
 #Ouvre le csv avec les combinaisons pour 1 arrêts
@@ -287,4 +287,4 @@ df_timerace2['Total_time'] = df_timerace2['TimeT1'] + df_timerace2['TimeT2'] + d
 df_timerace = pd.concat([df_timerace2,df_timerace3], ignore_index = True)
 
 # Affiche les 10 combinaisons les plus performantes
-df_timerace.sort_values(['Total_time'], ascending=True).head(10)
+df_timerace = df_timerace.sort_values(['Total_time'], ascending=True).head(10)
