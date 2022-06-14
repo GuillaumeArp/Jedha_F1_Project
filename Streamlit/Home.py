@@ -78,14 +78,18 @@ with col2:
     * Tech Stack: Docker, Python, Streamlit, Pandas, Plotly, Matplotlib
     * Data Source: [FastF1](https://theoehrly.github.io/Fast-F1/index.html), [F1 API](https://ergast.com/api/f1)
     """
-
+    st.write('\n')
+    st.write('\n')
     """
     Content:
     * F1 Season 2022: Provides informations about the current rankings, and offers a visualization of the points comparison between two drivers.
     * Race Strategy: A prediction of the optimal pit strategies for a race, based on the free practice sessions, and sprint when applicable.
     * Session Analysis: Various visualizations and informations regarding one session, and comparing data between two drivers.
+    
+    Note : All the visualizations on this dashboard can be opened in full screen using the top right button that appears on mouse hover.
     """
-
+    st.write('\n')
+    st.write('\n')
     """
     Team:
     * Adrien: [Linkedin](https://www.linkedin.com/in/adrienory) / [Github](https://github.com/AdrienOry)
