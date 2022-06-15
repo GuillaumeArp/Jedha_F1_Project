@@ -82,7 +82,7 @@ def plot_tyre_life(gp_round):
                             hovertemplate=hovertemplate))
 
     fig.update_yaxes(title_text="Lap Time (seconds)")
-    fig.update_xaxes(title_text=f"Lap")
+    fig.update_xaxes(title_text=f"Laps")
     fig.update_layout(width=1000,
                       height=700,
                       template='plotly_dark',
