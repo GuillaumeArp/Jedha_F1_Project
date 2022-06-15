@@ -177,7 +177,8 @@ def plot_strategies(gp_round):
                         name='Strategy',
                         customdata=df['Time'],
                         marker_color=df['Colors'],
-                        hovertemplate=hovertemplate))
+                        hovertemplate=hovertemplate,
+                        width=[0.5, 0.5, 0.5, 0.5, 0.5]))
 
     fig.update_xaxes(title_text=f"Laps")
     fig.update_yaxes(categoryorder='category descending')
