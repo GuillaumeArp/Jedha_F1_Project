@@ -269,7 +269,7 @@ for event in events_list.itertuples():
 
         #Export du csv
         csv_times = f'predicted_strategy_round_{gp_round}.csv'
-        df_final.to_csv(csv_times)
+        df_final.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_times)
         print(f'{csv_times} written')
         
         full_path = '/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_times

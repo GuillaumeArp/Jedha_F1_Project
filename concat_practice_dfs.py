@@ -145,8 +145,8 @@ for i in events_list.itertuples():
               laptime_min_calc_medium = (laptime_min_calc_soft + time_to_seconds(medium_to_soft))
               laptime_min_calc_hard = laptime_min_calc_soft + time_to_seconds(hard_to_soft)
               
-              list_times_soft = get_deg_values(0.13, diff_soft_per_lap)
-              list_times_medium = get_deg_values(0.085, diff_medium_per_lap)
+              list_times_soft = get_deg_values(0.135, diff_soft_per_lap)
+              list_times_medium = get_deg_values(0.095, diff_medium_per_lap)
               list_times_hard = get_deg_values(0.065, diff_medium_per_lap)
               
               df_times_soft = pd.DataFrame(columns=['Lap', 'Tyre', 'LapTimeSeconds', 'DeltaDeg', 'FuelDeg', 'AdjustedTime'])
