@@ -1,7 +1,7 @@
 import fastf1 as ff1
 import pandas as pd
 import numpy as np
-ff1.Cache.enable_cache('../cache/')
+ff1.Cache.enable_cache('/home/guillaume/Python_Projects/Jedha_F1_Project/cache/')
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import boto3
@@ -58,39 +58,56 @@ time.sleep(1)
 for i in events_list.itertuples():
        
        gp_round = i.RoundNumber
-       nb_laps = dict_nb_laps[gp_round]
+       df_full = pd.DataFrame(columns=cols)
        
-       fuel_per_lap_kg = 105 / nb_laps
-       mean_laps = 60
-       time_gain_per_kg = 0.035
-       laps_coeff = mean_laps / nb_laps
-       time_gained_per_lap = laps_coeff * time_gain_per_kg * fuel_per_lap_kg
-       
-       try:
-              dffp = pd.DataFrame(columns=cols)
+       try:              
               if i.EventFormat == 'conventional':
                      sessions_list = session_dict['conventional']
               else:
                      sessions_list = session_dict['sprint']   
               
               for j in sessions_list:        
-                     session = ff1.get_session(2022, i.RoundNumber, j)
-                     session.load(weather=True, telemetry=True)
+                     session = ff1.get_session(2022, gp_round, j)
+                     session.load(weather=False, telemetry=True, messages=False)
                      df = session.laps.pick_quicklaps()
                      df = pd.DataFrame(df)
                      df['Session'] = j
-                     dffp_complete = pd.concat([dffp, df])
+                     df_full = pd.concat([df_full, df])                     
                      
-              dffp_complete = dffp_complete.drop(dffp.columns[[0,5,6,7,8,9,10,11,12,13,14,15,16,17,21,25,26]], axis=1)
+              csv_name = f'full_data-round_{gp_round}.csv'
+              df_full.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name)
+              print(f'{csv_name} written')
+             
+       except:
+              break
+       
+       
+       
+for i in events_list.itertuples():
+       
+       try:
+              gp_round = i.RoundNumber
+              nb_laps = dict_nb_laps[gp_round]
+              csv_name = f'full_data-round_{gp_round}.csv'
+              
+              fuel_per_lap_kg = 105 / nb_laps
+              mean_laps = 60
+              time_gain_per_kg = 0.035
+              laps_coeff = mean_laps / nb_laps
+              time_gained_per_lap = laps_coeff * time_gain_per_kg * fuel_per_lap_kg
+
+              dffp_complete = pd.read_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name, index_col=0)
+              dffp_complete = dffp_complete.drop(dffp_complete.columns[[0,5,6,7,8,9,10,11,12,13,14,15,16,17,21,25,26]], axis=1)
 
               dffp_temp = dffp_complete.copy()
               dffp_temp['LapTime'] = dffp_temp['LapTime'].apply(pd.to_timedelta)
               dffp_times = dffp_temp.groupby('Compound')['LapTime'].mean()
               dffp_times = pd.DataFrame(dffp_times).sort_values(by='LapTime').reset_index()
-        
+              dffp_times = dffp_times[dffp_times['Compound'] != 'UNKNOWN']
+              
               hard_to_soft = (dffp_times['LapTime'].iloc[2] - dffp_times['LapTime'].iloc[0]) * 0.75
               medium_to_soft = (dffp_times['LapTime'].iloc[1] - dffp_times['LapTime'].iloc[0]) * 0.75
-       
+
               dffp_complete = dffp_complete[dffp_complete['TyreLife'].notna()]
               dffp_copy = dffp_complete.copy()
               dffp_copy['LapTime'] = dffp_complete['LapTime'].apply(pd.to_timedelta)
@@ -133,7 +150,7 @@ for i in events_list.itertuples():
               list_times_hard = get_deg_values(0.065, diff_medium_per_lap)
               
               df_times_soft = pd.DataFrame(columns=['Lap', 'Tyre', 'LapTimeSeconds', 'DeltaDeg', 'FuelDeg', 'AdjustedTime'])
-             
+              
               df_times_soft['Lap'] = list(range(1, nb_laps + 1))
               df_times_soft['Tyre'] = 'SOFT'
               df_times_soft['LapTimeSeconds'] = laptime_min_calc_soft
@@ -165,16 +182,15 @@ for i in events_list.itertuples():
               df_times = pd.concat([df_times_soft, df_times_medium, df_times_hard])
               df_times['TimeStr'] = df_times['FinalLapTime'].apply(lambda x: str(datetime.timedelta(seconds=x))[2:-3])
               
-              csv_name = f'full_data-round_{gp_round}.csv'
-              df_times.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name)
-              print(f'{csv_name} written')
+              csv_name_tyres = f'tyre_life_data_{gp_round}.csv'
+              df_times.to_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name_tyres)
+              print(f'{csv_name_tyres} written')
               
-              full_path = '/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name
-              s3.Bucket('f1-jedha-bucket').upload_file(full_path, f'data/{csv_name}', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
-              print(f'{csv_name} uploaded')
-              
-             
-       except:
+              full_path = '/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_name_tyres
+              s3.Bucket('f1-jedha-bucket').upload_file(full_path, f'data/{csv_name_tyres}', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
+              print(f'{csv_name_tyres} uploaded')
+       
+       except FileNotFoundError:
               break
           
 print('----------------------------------------------------------------')
