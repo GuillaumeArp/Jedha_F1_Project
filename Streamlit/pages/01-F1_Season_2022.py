@@ -13,7 +13,6 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 from PIL import Image
 
-
 ### Config
 st.set_page_config(
     page_title="FastF1",
@@ -22,13 +21,11 @@ st.set_page_config(
 )
 
 # Global variables
-
 events_list = ff1.get_event_schedule(2022)[2:]
 country_abbrev = ['BHR','SAU','AUS','ERO','MIA','ESP','MCO','AZE','CAN','GBR','AUT','FRA','HUN','BEL','NLD','ITA','SGP','JPN','USA','MXC','SAO','ABD']
 events_list['CountryAbbreviation'] = country_abbrev
 
 # Functions
-
 @st.cache()
 def plot_champ_pos():
     '''
@@ -146,19 +143,17 @@ driver_info = pd.read_csv('drivers_info.csv', index_col=0)
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# Display page title
 image = Image.open('images/season_2022_title.png')
-
 st.image(image, caption='', use_column_width="always")
 
 st.write('\n')
 st.write('\n')
 st.write('\n')
 
-
 col1, col2, col3 = st.columns([3, 8, 3])
 
 with col2:
-    
     """
     * On this page you will be able to pick two drivers and look at their points after each race on the left side.
     * On the right side, you will be able to watch the points evolution for the entire board after each race.
@@ -175,24 +170,20 @@ with col3:
 
 with col4:
     driver_2 = st.selectbox('Second driver', (driver_info["FullName"]), index = 1)
-    # Get Abbreviation of the first driver name
+    # Get Abbreviation of the second driver name
     driver_2 = driver_info[driver_info["FullName"] == driver_2]["Abbreviation"].values[0]
-
-
 
 col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 
 with col2:
     st.plotly_chart(plot_compare_points(driver_1, driver_2), use_container_width=True)
 
-
 with col5:
     st.plotly_chart(plot_champ_pos(), use_container_width=True)
 
 col1, col2, col3 = st.columns([3, 8, 3])
 
-with col2:
-    
+with col2: 
     """
     * Below are displayed the drivers and constructors standings, showing their cumulated points after each race.
     * The tables can be resized at will by dragging the bottom right corner.
@@ -206,40 +197,5 @@ col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
 with col2:
     st.dataframe(get_drivers_standings_df())
 
-
 with col5:
     st.dataframe(get_constructors_standings())
-
-
-
-
-
-
-
-
-
-
-# """
-# Race calendar
-# * Point 1
-# * Point 2
-# """
-# st.write('\n')
-# st.write('\n')
-# """
-# Season ranking
-# * Drivers
-#     * VER
-#     * CRO
-# * Team
-#     * Renault
-#     * Peugeot
-# """
-# st.write('\n')
-# st.write('\n')
-
-# """
-# Racetrack shapes
-
-
-# """

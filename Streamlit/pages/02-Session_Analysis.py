@@ -20,8 +20,6 @@ import requests
 import streamlit as st
 from PIL import Image
 
-
-
 ### Config
 st.set_page_config(
     page_title="FastF1",
@@ -30,18 +28,15 @@ st.set_page_config(
 )
 
 # Global variables
-
 events_list = ff1.get_event_schedule(2022)[2:]
 country_abbrev = ['BHR','SAU','AUS','ERO','MIA','ESP','MCO','AZE','CAN','GBR','AUT','FRA','HUN','BEL','NLD','ITA','SGP','JPN','USA','MXC','SAO','ABD']
 events_list['CountryAbbreviation'] = country_abbrev
 session_dict = {'conventional': ['Practice 1', 'Practice 2', 'Practice 3', 'Qualifying', 'Race'],
                 'sprint': ['Practice 1', 'Qualifying', 'Practice 2', 'Sprint', 'Race']}
-
 year = 2022
 
 
 # Functions
-
 def get_start_line_data():
     '''
     Returns a dict with the start line postitions
@@ -441,20 +436,12 @@ def load_data_session(year, gp_round, ses):
     add_driver_info()
     return session
 
-
-
-
-
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# Display page title
 image = Image.open('images/session_analysis_title.png')
-
 st.image(image, caption='', use_column_width="always")
-
-
-
-
 
 st.write('\n')
 st.write('\n')
@@ -468,7 +455,6 @@ with col2:
     * You can pick up to two different visualizations to display of each side of the page. Please note that the session results table is not avaible for Free Practice sessions.
     * Please let the page load entirely before trying to use another dropdown menu. If that session data has not be loaded to the cache yet, it may take up to a minute to load.
     """
-
 
 col1, col2, col3, col4, col5, col6 = st.columns([4, 2, 2, 2, 2, 4])
 
@@ -508,8 +494,6 @@ try:
     car_data_1, car_data_2 = get_car_data(fastest_driver_1, fastest_driver_2)
     lap_1, lap_2 = get_telemetry_data(fastest_driver_1, fastest_driver_2)
 
-
-
     col1, col2, col3, col4, col5, col6 = st.columns([1, 2, 1, 1, 2, 1])
     with col2:
         if ses == 'Qualifying' or ses == 'Race' or ses == 'Sprint':
@@ -524,7 +508,6 @@ try:
             decision_2 = st.selectbox(" ", ("Select a visualisation", "Speed comparison", "Fastest laps", "Speed, Gears and Delta Time comparison", "Speed visualization on track layout for First Driver", "Gears visualization on track layout for First Driver", "Delta Time on track layout"), key = 4)
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
-
 
     # Function to display visualisation selected
     def display_visualisation(decision):
@@ -570,31 +553,3 @@ except:
     st.write("")
     st.write("")
     st.markdown("<h1 style='text-align: center; color: red;'>No data available yet</h1>", unsafe_allow_html=True)
-
-
-    
-
-
-
-    
-
-
-
-st.write('\n')
-st.write('\n')
-st.write('\n')
-
-
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-st.write('\n')
-
-st.write('\n')
-st.write('\n')
-st.write('\n')

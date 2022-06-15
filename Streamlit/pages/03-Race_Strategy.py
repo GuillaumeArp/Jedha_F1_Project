@@ -3,15 +3,9 @@ from fastf1 import plotting
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
-import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from matplotlib.animation import FuncAnimation
 pio.templates.default = "plotly_dark"
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -19,12 +13,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 from PIL import Image
 
-### Import Adrien ###
-from fastf1.core import Laps
 from timple.timedelta import strftimedelta
 ff1.plotting.setup_mpl(mpl_timedelta_support=True, color_scheme=None, misc_mpl_mods=False)
-### Import Adrien ###
-
 
 ### Config
 st.set_page_config(
@@ -34,7 +24,6 @@ st.set_page_config(
 )
 
 # Global variables
-
 events_list = ff1.get_event_schedule(2022)[2:]
 
 compound_colors = {
@@ -44,7 +33,6 @@ compound_colors = {
 }
 
 # Functions
-
 def plot_tyre_life(gp_round):
     '''
     Plots the evolution of the tyre life
@@ -190,23 +178,27 @@ def plot_strategies(gp_round):
 
     return fig  
 
-
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# Display page title
 image = Image.open('images/race_strategy_title.png')
-
 st.image(image, caption='', use_column_width="always")
 
-
 st.write('\n')
 st.write('\n')
 st.write('\n')
 
-
+# Duplicate a row as a new DataFrame
 top_row = events_list.loc[[2]]
+
+# Rename index of duplicated row
 top_row.rename(index={2:1},inplace=True)
+
+# Rename EventName to add it later in the Streamlit selectbox
 top_row["EventName"] = "Select an event"
+
+# Concatenate the two DataFrames to have the new row on top
 events_list = pd.concat([top_row, events_list], axis=0)
 
 col1, col2, col3 = st.columns([4, 2, 4])
