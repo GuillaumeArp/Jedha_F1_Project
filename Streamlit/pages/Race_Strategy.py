@@ -105,10 +105,10 @@ st.write('\n')
 
 
 
-col1, col2, col3 = st.columns([3, 4, 3])
+col1, col2, col3 = st.columns([4, 2, 4])
 
 with col2:
-    gp_name = st.selectbox('Event', (events_list["EventName"]), index=6)
+    gp_name = st.selectbox('Event', (events_list["EventName"]), index=0)
 
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
