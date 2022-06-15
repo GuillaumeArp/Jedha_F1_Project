@@ -1,6 +1,5 @@
 import fastf1 as ff1
 from fastf1 import plotting
-from fastf1 import utils
 plotting.setup_mpl()
 ff1.Cache.enable_cache('cache/')
 import pandas as pd
@@ -34,6 +33,62 @@ st.set_page_config(
     layout="wide"
 )
 
+# Global variables
+
+events_list = ff1.get_event_schedule(2022)[2:]
+
+compound_colors = {
+    'SOFT': '#FF3333',
+    'MEDIUM': '#FFF200',
+    'HARD': '#EBEBEB',
+}
+
+# Functions
+
+def plot_tyre_life(gp_round):
+    '''
+    Plots the evolution of the tyre life
+    '''
+    
+    url = f'https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/tyre_life_data_{gp_round}.csv'
+    df_times = pd.read_csv(url, index_col=0)
+    event_name = events_list.iloc[gp_round]['EventName']
+    plot_title = f"{event_name} - Tyre Life Prediction"
+    hovertemplate = '<b>Lap:</b> %{x}<br><b>Time:</b> %{customdata}'
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_times[df_times['Tyre'] == 'SOFT']['Lap'],
+                            y=df_times[df_times['Tyre'] == 'SOFT']['FinalLapTime'],
+                            mode='lines',
+                            name='Soft',
+                            line_color=compound_colors['SOFT'],
+                            customdata=df_times[df_times['Tyre'] == 'SOFT']['TimeStr'],
+                            hovertemplate=hovertemplate))
+
+    fig.add_trace(go.Scatter(x=df_times[df_times['Tyre'] == 'MEDIUM']['Lap'],
+                            y=df_times[df_times['Tyre'] == 'MEDIUM']['FinalLapTime'],
+                            mode='lines',
+                            name='Medium',
+                            line_color=compound_colors['MEDIUM'],
+                            customdata=df_times[df_times['Tyre'] == 'MEDIUM']['TimeStr'],
+                            hovertemplate=hovertemplate))
+
+    fig.add_trace(go.Scatter(x=df_times[df_times['Tyre'] == 'HARD']['Lap'],
+                            y=df_times[df_times['Tyre'] == 'HARD']['FinalLapTime'],
+                            mode='lines',
+                            name='Hard',
+                            line_color=compound_colors['HARD'],
+                            customdata=df_times[df_times['Tyre'] == 'HARD']['TimeStr'],
+                            hovertemplate=hovertemplate))
+
+    fig.update_layout(width=1000,
+                      height=700,
+                      template='plotly_dark',
+                      yaxis_range=[df_times['FinalLapTime'].min() - 2, df_times['LapTimeSeconds'].max() + 10],
+                      hovermode='x',
+                      title_text=plot_title,
+                      title_x=0.5)
+    return fig
 
 
 with open('style.css') as f:
@@ -48,11 +103,23 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
-# Global variables
 
-events_list = ff1.get_event_schedule(2022)[2:]
 
-col1, col2, col3 = st.columns([3, 6, 3])
+col1, col2, col3 = st.columns([3, 4, 3])
 
 with col2:
-    gp_name = st.selectbox('Event', (events_list["EventName"]))
+    gp_name = st.selectbox('Event', (events_list["EventName"]), index=6)
+
+gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
+
+try:
+    
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
+    
+    with col2:
+        st.plotly_chart(plot_tyre_life(gp_round))
+    
+except:
+    st.write("")
+    st.write("")
+    st.markdown("<h1 style='text-align: center; color: red;'>No data available yet</h1>", unsafe_allow_html=True)
