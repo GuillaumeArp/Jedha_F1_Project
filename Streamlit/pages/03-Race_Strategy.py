@@ -189,6 +189,15 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 
+col1, col2, col3 = st.columns([3, 8, 3])
+
+with col2:
+    """
+    * This pages provides an estimation of the tyre degradation, and our prediction for the optimal strategies.
+    * On the left, the chart displays the estimated (and optimal) time per lap on each compound, based on free practice (and sprint) lap times.
+    * The right side chart displays our prediction based on this data, and shows the optimal strategies for one and two stops. The mouseover shows the total race time for each one.
+    """
+    
 # Duplicate a row as a new DataFrame
 top_row = events_list.loc[[2]]
 
