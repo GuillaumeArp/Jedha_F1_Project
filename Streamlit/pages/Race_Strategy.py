@@ -92,6 +92,103 @@ def plot_tyre_life(gp_round):
                       title_x=0.5)
     return fig
 
+def format_dataframe(gp_round):
+    '''
+    Returns a formatted dataframe suitable for plotting strategy predictions
+    '''
+    url = f'https://f1-jedha-bucket.s3.eu-west-3.amazonaws.com/data/predicted_strategy_round_{gp_round}.csv'
+    df = pd.read_csv(url, index_col=0).reset_index(drop=True)
+    
+    compound_colors = {
+        'SOFT': '#FF3333',
+        'MEDIUM': '#FFF200',
+        'HARD': '#EBEBEB',
+        'INTERMEDIATE': '#39B54A',
+        'WET': '#00AEEF',
+    }
+    
+    def expand_strategy(string):
+        return string.replace('S', 'SOFT,').replace('M', 'MEDIUM,').replace('H', 'HARD,').split(',')[:-1]
+
+    def get_pit_list(df, pos):
+        return df[['Train1', 'Train2', 'Train3']].iloc[pos].tolist()
+    
+    tyres_list_1 = expand_strategy(df['combiTyre'].iloc[0])
+    tyres_list_2 = expand_strategy(df['combiTyre'].iloc[1])
+
+    if len(tyres_list_1) == 2:
+        
+        dict_df_1 = {'Train1': [get_pit_list(df, 0)[0], tyres_list_1[0]],
+                    'Train2': [get_pit_list(df, 0)[1], tyres_list_1[1]]}
+
+        dict_df_2 = {'Train1': [get_pit_list(df, 1)[0], tyres_list_2[0]],
+                    'Train2': [get_pit_list(df, 1)[1], tyres_list_2[1]],
+                    'Train3': [get_pit_list(df, 1)[2], tyres_list_2[2]]}    
+    else:
+        
+        dict_df_1 = {'Train1': [get_pit_list(df, 0)[0], tyres_list_1[0]],
+                    'Train2': [get_pit_list(df, 0)[1], tyres_list_1[1]],
+                    'Train3': [get_pit_list(df, 0)[2], tyres_list_1[2]]}
+        
+        dict_df_2 = {'Train1': [get_pit_list(df, 1)[0], tyres_list_2[0]],
+                    'Train2': [get_pit_list(df, 1)[1], tyres_list_2[1]]}
+        
+    df_strat_1 = pd.DataFrame.from_dict(dict_df_1, orient='index', columns=['Lap', 'Tyre'])
+    df_strat_1['Time'] = df['TotalTimeStr'].iloc[0]
+    df_strat_1 = df_strat_1.reset_index().rename(columns={'index': 'Strategy'})
+    df_strat_1['Order'] = 1
+
+    if len(df_strat_1) == 2:
+        df_strat_1['Strategy'] = 'Faster: 1-stop Strategy'
+        
+    else:
+        df_strat_1['Strategy'] = 'Faster: 2-stops Strategy'
+        
+    df_strat_2 = pd.DataFrame.from_dict(dict_df_2, orient='index', columns=['Lap', 'Tyre'])
+    df_strat_2['Time'] = df['TotalTimeStr'].iloc[1]
+    df_strat_2 = df_strat_2.reset_index().rename(columns={'index': 'Strategy'})
+    df_strat_2['Order'] = 2
+
+    if len(df_strat_2) == 2:
+        df_strat_2['Strategy'] = 'Slower: 1-stop Strategy'
+        
+    else:
+        df_strat_2['Strategy'] = 'Slower: 2-stops Strategy'
+        
+    df_full = pd.concat([df_strat_1, df_strat_2])
+    df_full['Colors'] = df_full['Tyre'].map(compound_colors)
+    
+    return df_full 
+
+def plot_strategies(gp_round):
+    '''
+    Plots the strategy predictions for the given dataframe
+    '''
+    df = format_dataframe(gp_round)
+    hovertemplate = '<b>Max Tyre Life:</b> %{x}<br><b>Total Race Time:</b> %{customdata}'
+    event_name = events_list.iloc[gp_round]['EventName']
+    plot_title = f"{event_name} - Optimal Strategies Prediction"
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(x=df['Lap'],
+                        y=df['Strategy'],
+                        orientation='h',
+                        name='Strategy',
+                        customdata=df['Time'],
+                        marker_color=df['Colors'],
+                        hovertemplate=hovertemplate))
+
+    fig.update_xaxes(title_text=f"Laps")
+    fig.update_yaxes(categoryorder='category descending')
+    fig.update_layout(width=1000,
+                      height=700,
+                      barmode='stack',
+                      title_text=plot_title,
+                      title_x=0.5)
+
+    return fig  
+
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -130,6 +227,16 @@ try:
             st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
         else:
             st.plotly_chart(plot_tyre_life(gp_round))
+            
+    with col5:
+        if gp_name == "Select an event":
+            st.write('\n')
+            st.write('\n')
+            st.write('\n')
+            st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
+        else:
+            df = format_dataframe(gp_round)
+            st.plotly_chart(plot_strategies(gp_round))
     
 except:
     st.write("")
