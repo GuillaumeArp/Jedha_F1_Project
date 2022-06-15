@@ -196,7 +196,7 @@ for i in events_list.itertuples():
 print('----------------------------------------------------------------')
 time.sleep(1)
 end = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-print(f"{start} - End of script")
+print(f"{end} - End of script")
 print('\n')
 print('\n')
 
