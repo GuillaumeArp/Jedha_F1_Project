@@ -219,7 +219,7 @@ try:
             st.write('\n')
             st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
         else:
-            st.plotly_chart(plot_tyre_life(gp_round))
+            st.plotly_chart(plot_tyre_life(gp_round), use_container_width=True)
             
     with col5:
         if gp_name == "Select an event":
@@ -229,7 +229,7 @@ try:
             st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
         else:
             df = format_dataframe(gp_round)
-            st.plotly_chart(plot_strategies(gp_round))
+            st.plotly_chart(plot_strategies(gp_round), use_container_width=True)
     
 except:
     st.write("")
