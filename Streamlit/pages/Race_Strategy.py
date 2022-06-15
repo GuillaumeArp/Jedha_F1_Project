@@ -81,6 +81,8 @@ def plot_tyre_life(gp_round):
                             customdata=df_times[df_times['Tyre'] == 'HARD']['TimeStr'],
                             hovertemplate=hovertemplate))
 
+    fig.update_yaxes(title_text="Lap Time (seconds)")
+    fig.update_xaxes(title_text=f"Lap")
     fig.update_layout(width=1000,
                       height=700,
                       template='plotly_dark',
@@ -104,11 +106,15 @@ st.write('\n')
 st.write('\n')
 
 
+top_row = events_list.loc[[2]]
+top_row.rename(index={2:1},inplace=True)
+top_row["EventName"] = "Select an event"
+events_list = pd.concat([top_row, events_list], axis=0)
 
 col1, col2, col3 = st.columns([4, 2, 4])
 
 with col2:
-    gp_name = st.selectbox('Event', (events_list["EventName"]), index=0)
+    gp_name = st.selectbox('', (events_list["EventName"]))
 
 gp_round = events_list[events_list['EventName'] == gp_name]['RoundNumber'].values[0]
 
@@ -117,7 +123,13 @@ try:
     col1, col2, col3, col4, col5, col6 = st.columns([1, 15, 1, 1, 15, 1])
     
     with col2:
-        st.plotly_chart(plot_tyre_life(gp_round))
+        if gp_name == "Select an event":
+            st.write('\n')
+            st.write('\n')
+            st.write('\n')
+            st.markdown("<h5 style='text-align: center; color: white;'>No selection made</h5>", unsafe_allow_html=True)
+        else:
+            st.plotly_chart(plot_tyre_life(gp_round))
     
 except:
     st.write("")
