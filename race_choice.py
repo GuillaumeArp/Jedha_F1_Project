@@ -70,10 +70,10 @@ for event in events_list.itertuples():
         dffp_final = dffp_final[['TyreLife', 'S', 'M', 'H', 'FuelDeg']]
 
         #Ouvre le csv avec les combinaisons pour 1 arrêts
-        tyreCombi2 = pd.read_csv('data/TyreCombi2.csv', sep = ";")
+        tyreCombi2 = pd.read_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/TyreCombi2.csv', sep = ";")
 
         #Ouvre le csv avec les combinaisons pour 2 arrêts
-        tyreCombi3 = pd.read_csv('data/TyreCombi3.csv', sep = ";")
+        tyreCombi3 = pd.read_csv('/home/guillaume/Python_Projects/Jedha_F1_Project/data/TyreCombi3.csv', sep = ";")
 
         # Boucle sur tous les types de pneu pour 2 arrêts afin de générer tous les temps totaux pour la course
         time1 = 0
@@ -274,10 +274,10 @@ for event in events_list.itertuples():
         
         full_path = '/home/guillaume/Python_Projects/Jedha_F1_Project/data/' + csv_times
         s3.Bucket('f1-jedha-bucket').upload_file(full_path, f'data/{csv_times}', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
-        print(f'{csv_times} uploaded')
-        print('\n')
+        print(f'{csv_times} uploaded \n')
     
-    except:
+    except Exception as e:
+        print(e)
         break
     
 print('----------------------------------------------------------------')
