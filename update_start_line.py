@@ -17,11 +17,15 @@ for i in range(1,23):
         continue
     else:
         start_line_dict[i] = [0, 0, '<']
-        
-with open('data/start_line_dict.json', 'w') as f:
+
+       
+with open('/home/guillaume/Python_Projects/Jedha_F1_Project/data/start_line_dict.json', 'w') as f:
     json.dump(start_line_dict, f, indent=4)
+    print('json written')
     
 session = boto3.Session()
 s3 = boto3.resource('s3')
 
 s3.Bucket('f1-jedha-bucket').upload_file('/home/guillaume/Python_Projects/Jedha_F1_Project/data/start_line_dict.json', 'data/start_line_dict.json', ExtraArgs={'GrantRead': 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'})
+
+print('json uploaded') 
