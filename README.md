@@ -45,3 +45,10 @@ The dashboard is freely accessible online on [this page](http://f1insights-env.e
 
 * [AWS Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
 * [Heroku](https://www.heroku.com/)
+
+-----
+
+## Demo
+
+The live demo (in French) can be watched on [this Youtube video](https://youtu.be/PH8XaK99Smc?t=4515)
+
