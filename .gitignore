@@ -130,3 +130,6 @@ dmypy.json
 
 .DS_Store
 cache/
+guillaume_viz.ipynb
+modelev3_guillaume.ipynb
+race_choice.ipynb
